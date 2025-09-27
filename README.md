@@ -32,7 +32,7 @@ spring.datasource.password=내_DB_비밀번호
 # Google Gemini API 설정
 gemini.api-key=내가_발급받은_Gemini_API_키
 # ...
-
+```
 
 
 
