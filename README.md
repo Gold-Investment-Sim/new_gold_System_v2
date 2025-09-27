@@ -5,6 +5,37 @@
 원활한 협업과 좋은 코드 품질을 위해 몇 가지 규칙을 정했습니다. 처음에는 조금 복잡해 보일 수 있지만, 금방 익숙해질 수 있을 거예요! 궁금한 점은 언제든지 편하게 질문해주세요.
 
 ---
+### 문해찬 수정버전 실행법 (feat.Git Ignore)
+
+# README.md
+
+---
+
+## 🚀 프로젝트 실행 방법
+
+이 프로젝트를 로컬 환경에서 실행하려면 몇 가지 설정이 필요합니다.
+
+### 1. 설정 파일 준비
+
+백엔드(`BE`) 프로젝트를 실행하기 전에, `src/main/resources` 폴더에 있는 `application.properties.example` 파일을 복사하여 `application.properties`라는 이름의 새 파일을 만드세요.
+
+### 2. 설정 값 입력
+
+새로 만든 `application.properties` 파일을 열고, 아래와 같이 **자신만의 로컬 DB 정보와 API 키**를 입력해주세요. 이 파일은 `.gitignore`에 등록되어 있어 GitHub에 공유되지 않으므로 안심하고 개인 정보를 입력하세요.
+
+```properties
+# 데이터베이스 설정
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=내_DB_아이디
+spring.datasource.password=내_DB_비밀번호
+
+# Google Gemini API 설정
+gemini.api-key=내가_발급받은_Gemini_API_키
+# ...
+
+
+
+
 
 ### 📌 전체 개발 흐름
 
