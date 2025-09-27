@@ -35,3 +35,5 @@ out/
 
 ### VS Code ###
 .vscode/
+# 민감한 정보를 담고 있으므로 Git 히스토리에서 제외
+/src/main/resources/application.properties
