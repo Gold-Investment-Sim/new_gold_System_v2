@@ -1,0 +1,67 @@
+.step2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* 위에서부터 시작 */
+  min-height: calc(100vh - 60px); /* 네비게이션 제외 */
+  background-color: #ffffff;
+  text-align: center;
+  padding: 100px 20px 40px; /* 상단 여백 크게 줌 */
+}
+
+.step2-title {
+  font-size: 24px;
+  font-weight: bold;
+
+  margin-bottom: 35px;
+  color: #222;
+}
+
+.step2-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 35px; /* 제목과 기사 리스트 사이 간격 */
+}
+
+.article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 700px; /* 카드 리스트 넓이 제한 */
+  margin-bottom: 32px;
+}
+
+.article-card {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  font-size: 16px;
+  color: #333;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.article-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.step2-btn {
+  padding: 14px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  background-color: #2f80ed; /* 토스 느낌 블루 */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.step2-btn:hover {
+  background-color: #256adf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

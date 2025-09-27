@@ -1,0 +1,25 @@
+/* src/pages/OnBoarding/OnBoarding.css */
+
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 화면 전체 중앙 배치 */
+  text-align: center;
+  padding-top: 80px; /* 네비게이션바 높이만큼 여백 */
+  background-color: #ffffff;
+}
+
+.onboarding-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #212121;
+  margin-bottom: 16px;
+}
+
+.onboarding-subtitle {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #666666;
+}

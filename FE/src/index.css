@@ -1,0 +1,29 @@
+/* src/index.css */
+
+/* 기본 폰트: 시스템 폰트 + 한국어 친화 */
+:root {
+  font-family: 'Noto Sans KR', system-ui, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #212121;          /* 기본 글자색 (검정) */
+  background-color: #ffffff; /* 흰 배경 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+}

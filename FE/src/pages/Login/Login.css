@@ -1,0 +1,91 @@
+/* 전체 배경 (라이트그레이) */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f5f6f8; /* 라이트그레이 */
+}
+
+/* 중앙 카드 */
+.login-box {
+  background: #fff; /* 화이트 카드 */
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* 타이틀 */
+.login-title {
+  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #222;
+}
+
+/* 부제 */
+.login-subtitle {
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* 입력 폼 */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-form input {
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+}
+
+.login-form input:focus {
+  border-color: #1e90ff;
+  box-shadow: 0 0 4px rgba(30, 144, 255, 0.3);
+}
+
+/* 로그인 버튼 (진한 네이비) */
+/* 로그인 버튼 (세련된 블루 네이비) */
+.login-btn {
+  padding: 12px;
+  background-color: #2F5DCC; /* 세련된 블루네이비 */
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+
+.login-btn:hover {
+  background-color: #2448A6; /* 조금 더 진한 블루 */
+}
+
+
+
+/* 회원가입 버튼 (화이트+테두리) */
+.signup-btn {
+  padding: 12px;
+  background-color: #fff;
+  color: #333;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.signup-btn:hover {
+  border-color: #1e90ff;
+  color: #1e90ff;
+}

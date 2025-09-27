@@ -1,0 +1,44 @@
+.simulation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px);
+  background-color: #ffffff;
+  text-align: center;
+  padding: 20px;
+  gap: 16px; 
+}
+
+
+.simulation-title {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 32px;
+  color: #222;
+}
+
+.simulation-subtitle {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+.simulation-btn {
+  margin-top: 90px;
+  padding: 14px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  background-color: #256adf; /* 상담원 연결하기 느낌 블루 */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.simulation-btn:hover {
+  background-color: #256adf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
