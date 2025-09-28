@@ -1,11 +1,12 @@
-package com.goldSys.BE.entity;
+package com.goldSys.BE.news.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @Table(name = "NEWS_ARTICLE")
 public class NewsArticle {
     @Id
