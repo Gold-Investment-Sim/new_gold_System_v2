@@ -30,8 +30,6 @@ export default function ForgotPassword() {
   }
 
   return (
-    <>
-      <Navigation />
       <div className="login-wrap">
         <div className="login-card">
           <h1 className="title">비밀번호 찾기</h1>
@@ -66,6 +64,5 @@ export default function ForgotPassword() {
           </div>
         </div>
       </div>
-    </>
   );
 }

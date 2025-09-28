@@ -35,8 +35,6 @@ export default function DeleteAccount() {
   }
 
   return (
-    <>
-      <Navigation />
       <div className="login-wrap">
         <div className="login-card">
           <h1 className="title">회원 탈퇴</h1>
@@ -91,6 +89,5 @@ export default function DeleteAccount() {
           )}
         </div>
       </div>
-    </>
   );
 }

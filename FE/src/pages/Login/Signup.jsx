@@ -254,8 +254,6 @@ export default function Signup() {
   const canResend = timer <= 0 && !emailSending;
 
   return (
-    <>
-      <Navigation />
       <div className="login-wrap">
         <div className="login-card">
           <h1 className="title">회원가입</h1>
@@ -347,6 +345,5 @@ export default function Signup() {
           </div>
         </div>
       </div>
-    </>
   );
 }
