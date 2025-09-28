@@ -208,3 +208,15 @@ CREATE  OR REPLACE ALGORITHM=UNDEFINED DEFINER=`goldSys`@`localhost` SQL SECURIT
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- -----------------------------------------------------
+-- 보유자산 테이블 추가
+-- -----------------------------------------------------
+CREATE TABLE member_asset (
+    asset_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    member_no BIGINT NOT NULL,
+    balance BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_asset_member FOREIGN KEY (member_no) REFERENCES members(member_no)
+);
