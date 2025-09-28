@@ -1,91 +1,163 @@
-/* 전체 배경 (라이트그레이) */
-.login-container {
+.login-wrap {
+  min-height: calc(100vh - 70px);
   display: flex;
-  align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #f5f6f8; /* 라이트그레이 */
+  /* center → flex-start 로 바꾸고 위 여백 추가 */
+  align-items: center;
+  padding-top: 70px;
+  /* 원하는 만큼 조절: 100~200px */
+  background: #f5f7fb;
 }
 
-/* 중앙 카드 */
-.login-box {
-  background: #fff; /* 화이트 카드 */
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  max-width: 400px;
+.login-card {
+  width: 380px;
+  /* 카드 폭을 줄여서 아담하게 */
+  max-width: 380px;
+  min-width: 380px;
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .08);
+  padding: 28px 24px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0 0 18px;
   text-align: center;
-}
-
-/* 타이틀 */
-.login-title {
-  margin-bottom: 8px;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
   color: #222;
 }
 
-/* 부제 */
-.login-subtitle {
-  margin-bottom: 24px;
-  font-size: 14px;
-  color: #666;
+.form {
+  display: grid;
+  gap: 10px;
 }
 
-/* 입력 폼 */
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.login-form input {
-  padding: 12px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  outline: none;
-}
-
-.login-form input:focus {
-  border-color: #1e90ff;
-  box-shadow: 0 0 4px rgba(30, 144, 255, 0.3);
-}
-
-/* 로그인 버튼 (진한 네이비) */
-/* 로그인 버튼 (세련된 블루 네이비) */
-.login-btn {
-  padding: 12px;
-  background-color: #2F5DCC; /* 세련된 블루네이비 */
-  color: white;
-  font-size: 16px;
-  font-weight: 500;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.25s;
-}
-
-.login-btn:hover {
-  background-color: #2448A6; /* 조금 더 진한 블루 */
-}
-
-
-
-/* 회원가입 버튼 (화이트+테두리) */
-.signup-btn {
-  padding: 12px;
-  background-color: #fff;
+.label {
+  font-size: 13px;
   color: #333;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.25s;
+  font-weight: 500;
 }
 
-.signup-btn:hover {
-  border-color: #1e90ff;
-  color: #1e90ff;
+.input {
+  width: 100%;
+  height: 44px;
+  /* 버튼과 동일 */
+  padding: 0 12px;
+  border: 1px solid #e3e6ee;
+  border-radius: 10px;
+  background: #fbfcff;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  /* 버튼과 동일 계산 */
+  display: block;
+}
+
+.input:focus {
+  border-color: #cfd6ee;
+  background: #fff;
+}
+
+.remember {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #444;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.error {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff2f2;
+  color: #c62828;
+  border: 1px solid #ffd6d6;
+  font-size: 13px;
+}
+
+.btn {
+  width: 100%;
+  height: 44px;
+  /* 인풋과 동일 */
+  border: 0;
+  border-radius: 10px;
+  /* 인풋과 맞춤 */
+  font-weight: 700;
+  background: #2f66f5;
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+  box-sizing: border-box;
+  display: block;
+}
+
+.btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+.login-footer .dot {
+  margin: 0 8px;
+  color: #c3c7d4;
+}
+
+.link {
+  color: #2f66f5;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* 로그인과 비번찾기 카드 폭 고정 */
+.auth-card,
+.login-card {
+  width: 380px;
+  max-width: 380px;
+  min-width: 380px;
+}
+
+/* 카드 안 폼은 항상 좌측 정렬 */
+.auth-card .form {
+  text-align: left;
+}
+
+.auth-card .label {
+  text-align: left;
+  display: block;
+  margin-bottom: 1px;
+}
+
+/* 인풋·버튼 크기 통일(이미 있다면 유지) */
+.auth-card .input,
+.auth-card .btn {
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+}
+
+/* login.css 하단 */
+.hint {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: -4px
+}
+
+.hint.success {
+  color: #16a34a
+}
+
+.hint.error {
+  color: #dc2626
 }
