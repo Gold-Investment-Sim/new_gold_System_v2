@@ -2,6 +2,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "../../components/Navigation";
 import "./Result.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function Result() {
   const location = useLocation();
@@ -22,6 +24,28 @@ function Result() {
   const currentValue = goldPrice * buyAmount; // 현재 시세 금액
   const profit = currentValue - buyValue; // 손익
 
+
+  const [analysis, setAnalysis] = useState("AI가 결과를 분석하고 있습니다...");
+
+  useEffect(() => {
+    const resultText = `
+      - 거래 날짜: ${date}
+      - 당시 금 시세: ${goldPrice.toLocaleString()} 원/g (${priceChange > 0 ? '+' : ''}${priceChange}%)
+      - 매입 수량: ${buyAmount}g
+      - 총 매입 금액: ${buyValue.toLocaleString()} 원
+      - 평가 손익: ${profit.toLocaleString()} 원
+    `;
+
+    // 백엔드의 API 주소만 /api/gemini/analyze로 변경합니다.
+    axios.post("http://localhost:8080/api/gemini/analyze", { resultText })
+      .then(response => {
+        setAnalysis(response.data.analysis);
+      })
+      .catch(error => {
+        console.error("AI 분석 요청 실패:", error);
+        setAnalysis("AI 분석을 가져오는 데 실패했습니다.");
+      });
+  }, []);
   return (
     <>
       <Navigation />
@@ -39,7 +63,12 @@ function Result() {
               </span>
             </h2>
           </div>
-
+          <div className="analysis-box">
+            <h3>AI 분석</h3>
+            <p>
+              {analysis}
+            </p>
+          </div>
           <div className="result-detail">
             <div className="detail-row">
               <span>매입 단가</span>
