@@ -165,8 +165,6 @@ export default function HistoryDashboard() {
   const setSize = (s) => setFilters((f) => ({ ...f, size: s, page: 1 }));
 
   return (
-    <>
-      <Navigation />
       <div className="hd hd-page">
         <h1 className="hd-title">과거 이력</h1>
 
@@ -345,6 +343,5 @@ export default function HistoryDashboard() {
           </div>
         </div>
       </div>
-    </>
   );
 }

@@ -60,8 +60,6 @@ export default function ChangePassword() {
   }
 
   return (
-    <>
-      <Navigation />
       <div className="login-wrap">
         <div className="login-card">
           <h1 className="title">비밀번호 변경</h1>
@@ -108,6 +106,5 @@ export default function ChangePassword() {
           )}
         </div>
       </div>
-    </>
   );
 }
