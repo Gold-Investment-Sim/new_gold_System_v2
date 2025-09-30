@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +35,7 @@ public class MemberController {
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpSession session) {
-        var s = session.getAttribute(LOGIN_ID);
-        if (s != null) session.invalidate();
+        session.invalidate();
         return ResponseEntity.ok().build();
     }
 
@@ -67,5 +68,55 @@ public class MemberController {
         return ResponseEntity.ok(dto);
     }
 
+    // 비밀번호 변경
+    @PostMapping("/updatePassword")
+    public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordRequestDto body, HttpSession session) {
+        Object uid = session.getAttribute(LOGIN_ID);
+        if (uid == null) return ResponseEntity.status(401).body(Map.of("ok", false, "message", "로그인이 필요합니다."));
 
+        String currentPwd = body.getCurrentPwd();
+        String newPwd     = body.getNewPwd();
+        String confirmPwd = body.getConfirmPwd();
+
+        if (newPwd == null || !newPwd.equals(confirmPwd)) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "새 비밀번호가 일치하지 않습니다."));
+        }
+
+        try {
+            memberService.updatePassword(uid.toString(), currentPwd, newPwd);
+            return ResponseEntity.ok(Map.of("ok", true));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("ok", false, "message", "서버 오류"));
+        }
+    }
+
+    // 비밀번호 일치확인
+    @PostMapping("/checkPassword")
+    public ResponseEntity<?> checkPassword(@RequestBody PasswordOnlyRequestDto body, HttpSession session) {
+        Object uid = session.getAttribute(LOGIN_ID);
+        if (uid == null)
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "로그인이 필요합니다."));
+        boolean ok = memberService.checkPassword(uid.toString(), body.getPassword());
+        return ok
+                ? ResponseEntity.ok(Map.of("ok", true))
+                : ResponseEntity.badRequest().body(Map.of("ok", false, "message", "비밀번호가 일치하지 않습니다."));
+    }
+
+    @PostMapping("/deleteAccount")
+    public ResponseEntity<?> deleteAccount(@RequestBody DeleteAccountRequestDto body, HttpSession session) {
+        Object uid = session.getAttribute(LOGIN_ID);
+        if (uid == null)
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "로그인이 필요합니다."));
+        try {
+            memberService.deleteAccount(uid.toString(), body.getPassword());
+            session.invalidate();
+            return ResponseEntity.ok(Map.of("ok", true, "message", "계정 비활성화 완료"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("ok", false, "message", "서버 오류"));
+        }
+    }
 }

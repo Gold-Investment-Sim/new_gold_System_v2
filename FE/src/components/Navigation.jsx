@@ -6,8 +6,12 @@ import "./Navigation.css";
 
 function Navigation({ isAuthed, memberId, memberName, memberEmail, balance, onLogout }) {
   const [open, setOpen] = useState(false);
+
   const menuRef = useRef(null);
   const nav = useNavigate();
+
+  useEffect(() => { if (!isAuthed) setOpen(false); }, [isAuthed]);
+
 
   const displayName = useMemo(
     () => (memberName && memberName.trim()) || (memberId && memberId.trim()) || "사용자",

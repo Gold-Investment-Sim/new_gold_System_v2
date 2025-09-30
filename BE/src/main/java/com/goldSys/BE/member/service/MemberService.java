@@ -8,6 +8,7 @@ import com.goldSys.BE.member.dto.SignupResponseDto;
 public interface MemberService {
     boolean checkId(String memberId);
     boolean checkEmail(String memberEmail);
+    boolean checkPassword(String memberId, String password);
 
     SignupResponseDto join(SignupRequestDto req, String defaultRole);
 
@@ -22,4 +23,6 @@ public interface MemberService {
     void forgotPassword(String memberId, String email);
 
     LoginResponseDto getMe(Long memberNo);
+
+
 }

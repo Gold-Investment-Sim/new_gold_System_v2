@@ -106,7 +106,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // ====================
-    // 아이디/이메일 중복 체크
+    // 아이디/이메일 중복 체크 & 비밀번호 체크
     // ====================
     @Override
     public boolean checkId(String memberId) {
@@ -120,6 +120,14 @@ public class MemberServiceImpl implements MemberService {
         return repo.findByMemberEmail(memberEmail.trim()).isPresent();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkPassword(String memberId, String password) {
+        if (memberId == null || password == null || memberId.isBlank() || password.isBlank()) return false;
+        Member m = repo.findByMemberId(memberId.trim())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+        return encoder.matches(password, m.getMemberPwd());
+    }
     // ====================
     // 비밀번호 초기화(임시 비번 발급)
     // ====================
@@ -152,31 +160,41 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void updatePassword(String memberId, String currentPwd, String newPwd) {
-        Member m = repo.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+        if (memberId == null || currentPwd == null || newPwd == null
+                || memberId.isBlank() || currentPwd.isBlank() || newPwd.isBlank()) {
+            throw new IllegalArgumentException("입력값을 확인하세요.");
+        }
 
-        if (!encoder.matches(currentPwd, m.getMemberPwd())) {
+        Member m = repo.findByMemberId(memberId.trim())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        String oldHash = m.getMemberPwd();  // 기존 해시값
+        if (oldHash == null || !encoder.matches(currentPwd, oldHash)) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
-        if (encoder.matches(newPwd, m.getMemberPwd())) {
+        if (encoder.matches(newPwd, oldHash)) {
             throw new IllegalArgumentException("이전과 동일한 비밀번호는 사용할 수 없습니다.");
         }
 
-        m.setMemberPwd(encoder.encode(newPwd));
+        m.setMemberPwd(encoder.encode(newPwd));  // 새 비밀번호 해시로 교체
+        // JPA 변경감지로 UPDATE 실행됨
     }
+
 
     // ====================
     // 회원 탈퇴
     // ====================
     @Override
     @Transactional
-    public void deleteAccount(String memberId, String currentPwd) {
-        Member m = repo.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
-
-        if (!encoder.matches(currentPwd, m.getMemberPwd())) {
+    public void deleteAccount(String memberId, String password) {
+        if (memberId == null || password == null || memberId.isBlank() || password.isBlank())
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
+
+        Member m = repo.findByMemberId(memberId.trim())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        if (!encoder.matches(password, m.getMemberPwd()))
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 
         m.setMemberIsActive(false);
         m.setMemberDeletedAt(LocalDateTime.now());

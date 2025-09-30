@@ -1,5 +1,5 @@
 // src/pages/DeleteAccount.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "../../components/Navigation";
 import "../Login/Login.css";
@@ -12,7 +12,40 @@ export default function DeleteAccount() {
   const [err, setErr] = useState("");
   const [done, setDone] = useState(false);
 
-  const canSubmit = Boolean(password) && agree && !loading;
+  const [pwdOk, setPwdOk] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  // 비밀번호 사전 검증(디바운스)
+  useEffect(() => {
+    let stop = false;
+    setPwdOk(false);
+    setErr("");
+    if (!password) return;
+
+    setChecking(true);
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/auth/checkPassword", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ password }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!stop) setPwdOk(res.ok && data?.ok === true);
+      } catch {
+        if (!stop) setPwdOk(false);
+      } finally {
+        if (!stop) setChecking(false);
+      }
+    }, 300);
+    return () => {
+      stop = true;
+      clearTimeout(t);
+    };
+  }, [password]);
+
+  const canSubmit = pwdOk && agree && !loading;
 
   async function submit(e) {
     e.preventDefault();
@@ -25,7 +58,10 @@ export default function DeleteAccount() {
         credentials: "include",
         body: JSON.stringify({ password }),
       });
-      if (!res.ok) throw new Error("탈퇴 실패");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.message || "탈퇴 실패");
+      }
       setDone(true);
     } catch (e) {
       setErr(e.message || "탈퇴 실패");
@@ -69,7 +105,9 @@ export default function DeleteAccount() {
               </label>
 
               {/* 비밀번호 */}
-              <label className="label" htmlFor="pwd" style={{ marginTop: 8 }}>현재 비밀번호</label>
+              <label className="label" htmlFor="pwd" style={{ marginTop: 8 }}>
+                현재 비밀번호
+              </label>
               <input
                 id="pwd"
                 type="password"
@@ -79,6 +117,15 @@ export default function DeleteAccount() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <div className={`hint ${password ? (pwdOk ? "success" : "error") : ""}`}>
+                {password
+                  ? checking
+                    ? "확인 중..."
+                    : pwdOk
+                      ? "일치합니다."
+                      : "일치하지 않습니다."
+                  : "\u00A0"}
+              </div>
 
               {err && <div className="error">{err}</div>}
 

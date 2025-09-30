@@ -49,6 +49,8 @@ function AppInner() {
       });
     } finally {
       setAuth(null);
+      window.location.replace("/login");  // 새로고침 포함된 강제 이동
+
     }
   };
 
