@@ -3,6 +3,8 @@ package com.goldSys.BE.member.service.impl;
 import com.goldSys.BE.member.dto.*;
 import com.goldSys.BE.member.entity.Member;
 import com.goldSys.BE.member.entity.MemberAsset;
+import com.goldSys.BE.member.mail.EmailTemplate;
+import com.goldSys.BE.member.mail.Mailer;
 import com.goldSys.BE.member.repository.MemberRepository;
 import com.goldSys.BE.member.service.MemberAssetService;
 import com.goldSys.BE.member.service.MemberService;
@@ -17,6 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +28,7 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository repo;
     private final PasswordEncoder encoder;
-    private final JavaMailSender mailSender;
+    private final Mailer mailer;
     private final MemberAssetService assetService; // 주입
 
 
@@ -134,25 +138,25 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void forgotPassword(String memberId, String memberEmail) {
-        if (memberId == null || memberId.isBlank() || memberEmail == null || memberEmail.isBlank()) {
+        if (memberId == null || memberId.isBlank() || memberEmail == null || memberEmail.isBlank())
             throw new IllegalArgumentException("아이디 또는 이메일 불일치");
-        }
 
-        Member m = repo.findByMemberId(memberId.trim())
-                .filter(user -> user.getMemberEmail().equalsIgnoreCase(memberEmail.trim()))
+        final String id = memberId.trim();
+        final String email = memberEmail.trim().toLowerCase(Locale.ROOT);
+
+        Member member = repo.findByMemberIdAndMemberEmailIgnoreCase(id, email)
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 이메일 불일치"));
 
-        String tempPassword = generatePassword(12);
-        String encodedPassword = encoder.encode(tempPassword);
-        m.setMemberPwd(encodedPassword);
+        String tempPassword = generatePassword(8);
+        member.setMemberPwd(encoder.encode(tempPassword)); // 더티체킹으로 업데이트
 
-        // 메일 발송
-        SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(m.getMemberEmail());
-        msg.setSubject("임시 비밀번호 안내");
-        msg.setText("임시 비밀번호: " + tempPassword + "\n로그인 후 반드시 비밀번호를 변경하세요.");
-        mailSender.send(msg);
+        mailer.sendTemplate(
+                email,
+                EmailTemplate.FORGOT_PASSWORD,
+                Map.of("tempPassword", tempPassword)
+        );
     }
+
 
     // ====================
     // 비밀번호 변경
@@ -204,7 +208,7 @@ public class MemberServiceImpl implements MemberService {
     // 임시 비밀번호 생성 유틸
     // ====================
     private String generatePassword(int length) {
-        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*?";
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
         SecureRandom rnd = new SecureRandom();
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
