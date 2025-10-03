@@ -1,4 +1,3 @@
-// com.goldSys.BE.asset.entity.MemberAsset.java
 package com.goldSys.BE.member.entity;
 
 import jakarta.persistence.*;

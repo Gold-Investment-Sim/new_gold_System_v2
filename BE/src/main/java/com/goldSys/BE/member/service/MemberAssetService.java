@@ -1,8 +1,6 @@
 package com.goldSys.BE.member.service;
 
-import com.goldSys.BE.member.dto.MemberAssetDto;
-
 public interface MemberAssetService {
-    MemberAssetDto getOrCreateDefault(Long memberNo);
-    MemberAssetDto getBalance(Long memberNo);
+    Long getOrCreateDefault(Long memberNo);  // balance(Long)만 반환
+    Long getBalance(Long memberNo);          // balance(Long)만 반환
 }

@@ -6,14 +6,35 @@ import "./Simulation.css";
 function Simulation() {
   const navigate = useNavigate();  
 
+  // localStorage에서 로그인 정보 꺼내기
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isAuthed = !!user.memberId; // 로그인 여부 체크
+
   const handleStart = () => {
-    console.log("시뮬레이션 시작하기 버튼 클릭됨");
-    navigate("/simulation/step1");  
+    if (isAuthed) {
+      // ✅ 로그인했을 때 → 정상적으로 Step1으로 이동
+      console.log("로그인됨 → 시뮬레이션 시작 (결과 저장 가능)");
+      navigate("/simulation/step1");  
+    } else {
+      // ✅ 로그인 안 했을 때 → 그래도 Step1으로 이동 (체험만 가능, 결과 저장 불가)
+      console.log("로그인 안 됨 → 시뮬레이션 체험만 가능 (결과 저장 불가)");
+      navigate("/simulation/step1");
+    }
   };
 
   return (
     <>
-      <Navigation />
+      <Navigation 
+        isAuthed={isAuthed}
+        memberId={user.memberId}
+        memberName={user.memberName}
+        memberEmail={user.memberEmail}
+        balance={user.balance}
+        onLogout={() => {
+          localStorage.removeItem("user");
+          window.location.reload();
+        }}
+      />
       <div className="simulation">
         <h1 className="simulation-title">투자 시뮬레이션 시작하기</h1>
         <p className="simulation-subtitle">
