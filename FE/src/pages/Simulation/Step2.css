@@ -65,3 +65,82 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+/* ===== 도크 레이아웃: 사이드 여백 중앙 + 화면 세로 중앙 ===== */
+:root{
+  --dock-pad: 400px;   /* 본문 좌우 여백(= 도크 영역 폭) */
+  --dock-width: 170px; /* 도크 컬럼 실제 폭 */
+}
+
+.page-with-docks { padding-left: var(--dock-pad); padding-right: var(--dock-pad); }
+
+.side-dock{
+  position: fixed;
+  top: 50vh;                           /* 세로 중앙 기준점 */
+  transform: translateY(-50%);      /* 세로 중앙 정렬 */
+  width: var(--dock-width);
+  pointer-events: none;
+  z-index: 9;
+}
+.side-dock.left  { left:  calc((var(--dock-pad) - var(--dock-width)) / 2); }
+.side-dock.right { right: calc((var(--dock-pad) - var(--dock-width)) / 2); }
+
+.dock-inner{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto; /* 카드 클릭 가능 */
+}
+
+/* mini 카드 = metric-card 룩 */
+.metric-card.mini{
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+}
+.metric-card.mini .metric-head{
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 10px; border-bottom: 1px solid #f1f5f9;
+}
+.metric-card.mini .metric-title{ margin: 0; font-size: 13px; color: #111; }
+.metric-card.mini .metric-body{ padding: 6px 10px; }
+
+.expand-btn{
+  border: none; background: transparent; cursor: pointer; color: #444;
+  padding: 2px; border-radius: 6px;
+}
+.expand-btn:hover{ background: #f3f4f6; }
+
+/* 반응형 */
+@media (max-width: 1200px){
+  .page-with-docks{ padding-left: 0; padding-right: 0; }
+  .side-dock{ display: none; }
+}
+
+/* === MetricCard 모달 공통 === */
+.modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* 도크(9)보다 높게 */
+}
+
+.modal-card{
+  width: min(960px, 90vw);
+  max-height: 90vh;
+  overflow: hidden;
+  background: #fff;
+  color: #111;
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0,0,0,.4);
+}
+
+/* 모달이 잘리지 않도록 */
+.page-with-docks{
+  overflow: visible;
+  position: relative;
+  z-index: auto;
+}
