@@ -20,7 +20,7 @@ public interface MemberService {
 
     void deleteAccount(String memberId, String password);
 
-    void forgotPassword(String memberId, String email);
+    void forgotPassword(String memberId, String memberEmail);
 
     LoginResponseDto getMe(Long memberNo);
 

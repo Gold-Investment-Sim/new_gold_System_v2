@@ -104,6 +104,7 @@ public class MemberController {
                 : ResponseEntity.badRequest().body(Map.of("ok", false, "message", "비밀번호가 일치하지 않습니다."));
     }
 
+    // 회원탈퇴
     @PostMapping("/deleteAccount")
     public ResponseEntity<?> deleteAccount(@RequestBody DeleteAccountRequestDto body, HttpSession session) {
         Object uid = session.getAttribute(LOGIN_ID);
@@ -113,6 +114,19 @@ public class MemberController {
             memberService.deleteAccount(uid.toString(), body.getPassword());
             session.invalidate();
             return ResponseEntity.ok(Map.of("ok", true, "message", "계정 비활성화 완료"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("ok", false, "message", "서버 오류"));
+        }
+    }
+
+    // 비밀번호 찾기
+    @PostMapping("/forgotPassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequestDto body) {
+        try {
+            memberService.forgotPassword(body.getMemberId(), body.getMemberEmail());
+            return ResponseEntity.ok(Map.of("ok", true));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
         } catch (Exception e) {
