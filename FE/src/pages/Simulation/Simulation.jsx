@@ -1,6 +1,5 @@
 // src/pages/Simulation/Simulation.jsx
 import { useNavigate } from "react-router-dom";
-import Navigation from "../../components/Navigation";
 import "./Simulation.css";
 
 function Simulation() {
@@ -13,7 +12,6 @@ function Simulation() {
 
   return (
     <>
-      <Navigation />
       <div className="simulation">
         <h1 className="simulation-title">투자 시뮬레이션 시작하기</h1>
         <p className="simulation-subtitle">

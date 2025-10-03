@@ -36,10 +36,10 @@ public class SecurityConfig {
 
                         // 공개 API
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/simulation/**").permitAll()
                         .requestMatchers("/api/news/**").permitAll()
-                        .requestMatchers("/api/history/**").permitAll()
                         .requestMatchers("/api/metrics/**").permitAll()
+                        .requestMatchers("/api/simulation/**").authenticated()
+                        .requestMatchers("/api/history/**").authenticated()
                         // 그 밖의 모든 요청
                         .anyRequest().authenticated()
                 )

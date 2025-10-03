@@ -1,6 +1,5 @@
 // src/pages/Simulation/Step3.jsx
 import { useLocation, useNavigate } from "react-router-dom";
-import Navigation from "../../components/Navigation";
 import "./Step3.css";
 import { useState } from "react";
 
@@ -42,7 +41,6 @@ function Step3() {
 
   return (
     <>
-      <Navigation />
       <div className="step3-container">
         <div className="step3-box">
           <h1 className="step3-title">주문하기</h1>

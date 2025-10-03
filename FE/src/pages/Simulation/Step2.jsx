@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import Navigation from "../../components/Navigation";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import MetricMini from "../../components/MetricMini";
