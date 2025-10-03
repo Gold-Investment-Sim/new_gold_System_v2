@@ -35,7 +35,13 @@ function Navigation({ isAuthed, memberId, memberName, memberEmail, balance, onLo
 
         <div className="nav-menu">
           <Link to="/simulation">투자 시뮬레이션</Link>
-          <Link to="/history">투자 이력</Link>
+          <Link
+            to={isAuthed ? "/history" : "/login"}
+            state={!isAuthed ? { from: "/history" } : undefined}
+            onClick={(e) => { if (!isAuthed) alert("로그인 후 이용 가능합니다."); }}
+          >
+            투자 이력
+          </Link>
           <Link to="/glossary">용어사전</Link>
         </div>
 
@@ -60,7 +66,6 @@ function Navigation({ isAuthed, memberId, memberName, memberEmail, balance, onLo
                   <div className="gs-menu-avatar">{initials || <FaUserCircle aria-hidden />}</div>
                   <div className="gs-menu-meta">
                     <div className="gs-menu-name">{displayName}</div>
-                    {/* 아이디/이메일 노출 규칙 */}
                     {memberId ? <div className="gs-menu-id">@{memberId}</div> : null}
                     {memberEmail ? <div className="gs-menu-id">{memberEmail}</div> : null}
                     {typeof balance === "number" && (

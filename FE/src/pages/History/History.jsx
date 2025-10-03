@@ -1,7 +1,6 @@
 // src/pages/HistoryDashboard.jsx
 import { useEffect, useMemo, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import Navigation from "../../components/Navigation";
 import "../History/History.css";
 
 const RANGE_MIN = "2023-01-01";
@@ -25,19 +24,19 @@ const fmt = (n, d = 1) =>
   new Intl.NumberFormat(undefined, { maximumFractionDigits: d, minimumFractionDigits: d }).format(n);
 
 async function getHistory(filters) {
-  const url = `/api/history?${qs(filters)}`;
+  const url = `http://localhost:8080/api/history?${qs(filters)}`;
   const res = await fetch(url, { credentials: "include" });
   if (!res.ok) throw new Error(`history:${res.status}`);
   return res.json();
 }
 async function getStats(filters) {
-  const url = `/api/history/stats?${qs({ from: filters.from, to: filters.to, type: filters.type })}`;
+  const url = `http://localhost:8080/api/history/stats?${qs({ from: filters.from, to: filters.to, type: filters.type })}`;
   const res = await fetch(url, { credentials: "include" });
   if (!res.ok) throw new Error(`stats:${res.status}`);
   return res.json();
 }
 async function getSummary() {
-  const res = await fetch(`/api/history/summary`, { credentials: "include" });
+  const res = await fetch(`http://localhost:8080/api/history/summary`, { credentials: "include" });
   if (!res.ok) throw new Error(`summary:${res.status}`);
   const d = await res.json();
 

@@ -1,11 +1,17 @@
 // src/pages/Login.jsx
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import "../Login/Login.css";
 
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080",
+  withCredentials: true,
+});
+
 export default function Login({ onAuthed }) {
   const nav = useNavigate();
+  const loc = useLocation();
   const [memberId, setMemberId] = useState("");
   const [memberPwd, setMemberPwd] = useState("");
   const [remember, setRemember] = useState(false);
@@ -23,27 +29,26 @@ export default function Login({ onAuthed }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setErr("");
     setLoading(true);
     try {
-      const res = await axios.post(
-        "http://localhost:8080/api/auth/login",
-        { memberId, memberPwd },
-        { withCredentials: true }
-      );
-      const data = res.data; // { memberId, memberName, balance, ... } 백엔드 DTO
-      onAuthed?.(data);      // App.jsx에서 user 상태 갱신
+      const { data } = await api.post("/api/auth/login", { memberId, memberPwd });
+      // 전역 상태 갱신
+      onAuthed?.(data);
+      // 새로고침 대비 저장
+      localStorage.setItem("user", JSON.stringify(data));
 
+      // 아이디 저장
+      if (remember) localStorage.setItem("saved_memberId", memberId);
+      else localStorage.removeItem("saved_memberId");
 
-      if (remember) {
-        localStorage.setItem("saved_memberId", memberId);
-      } else {
-        localStorage.removeItem("saved_memberId");
-      }
-
-      nav("/"); // 홈으로 이동
-    } catch {
-      setErr("아이디 또는 비밀번호가 올바르지 않습니다.");
+      // 보호 라우트가 넘겨준 이동 대상 or 홈
+      const from = loc.state?.from || "/";
+      nav(from, { replace: true });
+    } catch (e2) {
+      const msg = e2?.response?.data?.message || "아이디 또는 비밀번호가 올바르지 않습니다.";
+      setErr(msg);
     } finally {
       setLoading(false);
     }
@@ -54,7 +59,6 @@ export default function Login({ onAuthed }) {
       <div className="login-card">
         <h1 className="title">로그인</h1>
         <form className="form" onSubmit={handleSubmit}>
-          {/* 아이디 */}
           <label className="label" htmlFor="memberId">아이디</label>
           <input
             id="memberId"
@@ -67,7 +71,6 @@ export default function Login({ onAuthed }) {
             required
           />
 
-          {/* 비밀번호 */}
           <label className="label" htmlFor="memberPwd">비밀번호</label>
           <input
             id="memberPwd"
@@ -80,7 +83,6 @@ export default function Login({ onAuthed }) {
             required
           />
 
-          {/* 아이디 저장 */}
           <label className="remember">
             <input
               type="checkbox"
@@ -90,19 +92,17 @@ export default function Login({ onAuthed }) {
             아이디 저장
           </label>
 
-          {/* 에러 메시지 */}
           {err && <div className="error">{err}</div>}
 
-          {/* 버튼 */}
           <button type="submit" className="btn" disabled={loading}>
             {loading ? "로그인 중..." : "로그인"}
           </button>
         </form>
 
         <div className="login-footer">
-          <a className="link" href="/signup">회원가입</a>
+          <Link className="link" to="/signup">회원가입</Link>
           <span className="dot">·</span>
-          <a className="link" href="/forgotPassword">비밀번호 찾기</a>
+          <Link className="link" to="/forgotPassword">비밀번호 찾기</Link>
         </div>
       </div>
     </div>

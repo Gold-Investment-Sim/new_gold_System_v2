@@ -1,0 +1,45 @@
+.metric-card.mini {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 0 0 rgba(0,0,0,.02);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.metric-card.mini:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.metric-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.metric-title {
+  margin: 0;
+  font-size: 13px;
+  color: #111;
+}
+
+.expand-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #444;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.expand-btn:hover {
+  background: #f3f4f6;
+}
+
+.metric-body {
+  padding: 6px 10px;
+}

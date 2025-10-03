@@ -1,0 +1,88 @@
+/* 모달 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.modal-card {
+  width: min(960px, 90vw);
+  max-height: 90vh;
+  background: #fff;
+  color: #111;
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* 헤더 */
+.metric-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.metric-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+}
+.metric-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* 세그먼트 버튼 */
+.segmented {
+  display: inline-flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  background: #fff;
+  overflow: hidden;
+}
+.seg-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 1;
+}
+.seg-btn + .seg-btn {
+  border-left: 1px solid #e2e8f0;
+}
+.seg-btn.is-active {
+  background: #2f80ed;
+  color: #fff;
+}
+.seg-btn:focus-visible {
+  outline: 2px solid #94a3b8;
+  outline-offset: -2px;
+  border-radius: 0;
+}
+
+/* 닫기 */
+.close-btn {
+  padding: 2px 5px;
+  font-size: 12px;
+  border: 0;
+  border-radius: 4px;
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+}
+.close-btn:hover {
+  background: lightgray;
+}
+
+/* 본문 */
+.metric-body {
+  padding: 8px 12px 12px;
+}
