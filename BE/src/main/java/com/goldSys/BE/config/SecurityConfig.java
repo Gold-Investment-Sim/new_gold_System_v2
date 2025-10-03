@@ -40,7 +40,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/news/**").permitAll()
                         .requestMatchers("/api/history/**").permitAll()
                         .requestMatchers("/api/metrics/**").permitAll()
-                        // 그 밖의 모든 요청
+                        .requestMatchers("/api/asset/**").permitAll()   // ✅ balance 조회 API 허용
+
+                        // 그 밖의 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 // 로그아웃 처리

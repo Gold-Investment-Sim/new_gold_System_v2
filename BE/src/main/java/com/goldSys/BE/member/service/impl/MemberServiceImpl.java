@@ -2,7 +2,6 @@ package com.goldSys.BE.member.service.impl;
 
 import com.goldSys.BE.member.dto.*;
 import com.goldSys.BE.member.entity.Member;
-import com.goldSys.BE.member.entity.MemberAsset;
 import com.goldSys.BE.member.mail.EmailTemplate;
 import com.goldSys.BE.member.mail.Mailer;
 import com.goldSys.BE.member.repository.MemberRepository;
@@ -10,8 +9,6 @@ import com.goldSys.BE.member.service.MemberAssetService;
 import com.goldSys.BE.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,34 +26,28 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository repo;
     private final PasswordEncoder encoder;
     private final Mailer mailer;
-    private final MemberAssetService assetService; // 주입
+    private final MemberAssetService assetService;
 
-
-    // ====================
     // 회원가입
-    // ====================
     @Override
     @Transactional
     public SignupResponseDto join(SignupRequestDto req, String defaultRole) {
-        // 중복 체크
         if (repo.findByMemberId(req.getMemberId()).isPresent())
             throw new IllegalArgumentException("DUPLICATE_ID");
         if (repo.findByMemberEmail(req.getMemberEmail()).isPresent())
             throw new IllegalArgumentException("DUPLICATE_EMAIL");
 
-        // 엔티티 생성
         Member m = Member.builder()
                 .memberId(req.getMemberId())
                 .memberPwd(encoder.encode(req.getMemberPwd()))
                 .memberName(req.getMemberName())
                 .memberEmail(req.getMemberEmail())
                 .memberRole(defaultRole != null ? defaultRole : "ROLE_USER")
-                .memberIsActive(true) // 이메일 인증은 프론트에서 끝나고 넘어옴
+                .memberIsActive(true)
                 .memberCreatedAt(LocalDateTime.now())
                 .memberUpdatedAt(LocalDateTime.now())
                 .build();
 
-        // 저장
         Member saved = repo.save(m);
 
         return new SignupResponseDto(
@@ -68,9 +59,7 @@ public class MemberServiceImpl implements MemberService {
         );
     }
 
-    // ====================
     // 로그인
-    // ====================
     @Override
     @Transactional
     public LoginResponseDto login(LoginRequestDto req) {
@@ -84,9 +73,7 @@ public class MemberServiceImpl implements MemberService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 인증 필요");
         }
 
-        // 첫 로그인 자산 지급 처리
-        assetService.getOrCreateDefault(member.getMemberNo());
-        Long balance = assetService.getOrCreateDefault(member.getMemberNo()).getBalance();
+        Long balance = assetService.getOrCreateDefault(member.getMemberNo());
 
         return new LoginResponseDto(
                 member.getMemberNo().intValue(),
@@ -98,9 +85,7 @@ public class MemberServiceImpl implements MemberService {
         );
     }
 
-    // ====================
     // 최근 로그인 갱신
-    // ====================
     @Override
     @Transactional
     public void updateLastLogin(String memberId) {
@@ -109,21 +94,21 @@ public class MemberServiceImpl implements MemberService {
         m.setMemberLastLoginAt(LocalDateTime.now());
     }
 
-    // ====================
-    // 아이디/이메일 중복 체크 & 비밀번호 체크
-    // ====================
+    // 아이디 중복 체크
     @Override
     public boolean checkId(String memberId) {
         if (memberId == null || memberId.isBlank()) return true;
         return repo.findByMemberId(memberId.trim()).isPresent();
     }
 
+    // 이메일 중복 체크
     @Override
     public boolean checkEmail(String memberEmail) {
         if (memberEmail == null || memberEmail.isBlank()) return true;
         return repo.findByMemberEmail(memberEmail.trim()).isPresent();
     }
 
+    // 비밀번호 체크
     @Override
     @Transactional(readOnly = true)
     public boolean checkPassword(String memberId, String password) {
@@ -132,9 +117,8 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
         return encoder.matches(password, m.getMemberPwd());
     }
-    // ====================
-    // 비밀번호 초기화(임시 비번 발급)
-    // ====================
+
+    // 비밀번호 초기화
     @Override
     @Transactional
     public void forgotPassword(String memberId, String memberEmail) {
@@ -148,7 +132,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 이메일 불일치"));
 
         String tempPassword = generatePassword(8);
-        member.setMemberPwd(encoder.encode(tempPassword)); // 더티체킹으로 업데이트
+        member.setMemberPwd(encoder.encode(tempPassword));
 
         mailer.sendTemplate(
                 email,
@@ -157,10 +141,7 @@ public class MemberServiceImpl implements MemberService {
         );
     }
 
-
-    // ====================
     // 비밀번호 변경
-    // ====================
     @Override
     @Transactional
     public void updatePassword(String memberId, String currentPwd, String newPwd) {
@@ -172,7 +153,7 @@ public class MemberServiceImpl implements MemberService {
         Member m = repo.findByMemberId(memberId.trim())
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-        String oldHash = m.getMemberPwd();  // 기존 해시값
+        String oldHash = m.getMemberPwd();
         if (oldHash == null || !encoder.matches(currentPwd, oldHash)) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
@@ -180,14 +161,10 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("이전과 동일한 비밀번호는 사용할 수 없습니다.");
         }
 
-        m.setMemberPwd(encoder.encode(newPwd));  // 새 비밀번호 해시로 교체
-        // JPA 변경감지로 UPDATE 실행됨
+        m.setMemberPwd(encoder.encode(newPwd));
     }
 
-
-    // ====================
     // 회원 탈퇴
-    // ====================
     @Override
     @Transactional
     public void deleteAccount(String memberId, String password) {
@@ -204,9 +181,7 @@ public class MemberServiceImpl implements MemberService {
         m.setMemberDeletedAt(LocalDateTime.now());
     }
 
-    // ====================
-    // 임시 비밀번호 생성 유틸
-    // ====================
+    // 임시 비밀번호 생성
     private String generatePassword(int length) {
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
         SecureRandom rnd = new SecureRandom();
@@ -217,15 +192,14 @@ public class MemberServiceImpl implements MemberService {
         return sb.toString();
     }
 
+    // getMe
     @Override
     @Transactional(readOnly = true)
     public LoginResponseDto getMe(Long memberNo) {
-        // repo = MemberRepository (이미 필드로 주입돼 있음)
         Member m = repo.findById(memberNo)
                 .orElseThrow(() -> new IllegalArgumentException("member not found"));
 
-
-        Long balance = assetService.getOrCreateDefault(memberNo).getBalance();
+        Long balance = assetService.getOrCreateDefault(memberNo);
 
         return new LoginResponseDto(
                 m.getMemberNo().intValue(),
@@ -237,4 +211,3 @@ public class MemberServiceImpl implements MemberService {
         );
     }
 }
-

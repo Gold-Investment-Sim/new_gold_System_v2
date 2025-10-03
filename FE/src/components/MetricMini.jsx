@@ -29,19 +29,19 @@ export default function MetricMini({
     const start = new Date(end);
     start.setDate(start.getDate() - 30);
 
-    axios.get("http://localhost:8080/api/metrics/series", {
-      withCredentials: true,
+    // ✅ 여기 수정됨
+    axios.get("/api/metrics/series", {
       params: { metric, from: toISO(start), to: toISO(end) },
     })
-    .then(({ data }) => {
-      const sorted = (Array.isArray(data) ? data : [])
-        .filter(v => v?.date && v?.value != null)
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
-        .slice(-30)
-        .map((v, i) => ({ x: v.date ?? i, y: Number(v.value) }));
-      setRows(sorted);
-    })
-    .catch(() => setRows([]));
+      .then(({ data }) => {
+        const sorted = (Array.isArray(data) ? data : [])
+          .filter(v => v?.date && v?.value != null)
+          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .slice(-30)
+          .map((v, i) => ({ x: v.date ?? i, y: Number(v.value) }));
+        setRows(sorted);
+      })
+      .catch(() => setRows([]));
   }, [selectedDate, metric]);
 
   return (
@@ -73,21 +73,33 @@ export default function MetricMini({
             <LineChart data={rows} margin={{ top: 6, right: 8, bottom: 2, left: 8 }}>
               <XAxis dataKey="x" hide />
               <YAxis hide />
-<Tooltip
-  wrapperStyle={{ zIndex: 1000 }}
-  contentStyle={{ fontSize: "12px", padding: "4px 6px" }}
-  labelFormatter={(l) => `날짜: ${l}`}
-  formatter={(v) => [`${v.toLocaleString()} ${title.includes("환율") ? "원/USD" :
-                      title.includes("금") ? "원/g" :
-                      title.includes("VIX") ? "pt" :
-                      title.includes("ETF") ? "주" :
-                      ""}`, title]} 
-/>
+              <Tooltip
+                wrapperStyle={{ zIndex: 1000 }}
+                contentStyle={{ fontSize: "12px", padding: "4px 6px" }}
+                labelFormatter={(l) => `날짜: ${l}`}
+                formatter={(v) => [
+                  `${v.toLocaleString()} ${
+                    title.includes("환율") ? "원/USD" :
+                    title.includes("금") ? "원/g" :
+                    title.includes("VIX") ? "pt" :
+                    title.includes("ETF") ? "주" : ""
+                  }`,
+                  title
+                ]}
+              />
               <Line type="monotone" dataKey="y" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div style={{ height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: "#999" }}>
+          <div
+            style={{
+              height: 80,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#999"
+            }}
+          >
             데이터 없음
           </div>
         )}
