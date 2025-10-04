@@ -1,6 +1,5 @@
 // src/pages/Simulation/Result.jsx
 import { useLocation, useNavigate } from "react-router-dom";
-import Navigation from "../../components/Navigation";
 import "./Result.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -48,7 +47,6 @@ function Result() {
   }, []);
   return (
     <>
-      <Navigation />
       <div className="result-container">
         <div className="result-box">
           <h1 className="result-title">거래 결과</h1>

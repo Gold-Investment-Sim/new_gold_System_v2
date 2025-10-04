@@ -1,6 +1,5 @@
 // src/pages/Simulation/Step3.jsx
 import { useLocation, useNavigate } from "react-router-dom";
-import Navigation from "../../components/Navigation";
 import "./Step3.css";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -80,7 +79,6 @@ function Step3() {
 
   return (
     <>
-      <Navigation
         isAuthed={isAuthed}
         memberId={user.memberId}
         memberName={user.memberName}
@@ -90,7 +88,6 @@ function Step3() {
           localStorage.removeItem("user");
           window.location.reload();
         }}
-      />
       <div className="step3-container">
         <div className="step3-box">
           <h1 className="step3-title">주문하기</h1>

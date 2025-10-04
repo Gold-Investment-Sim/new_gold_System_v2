@@ -1,5 +1,4 @@
 // src/pages/Simulation/Step1.jsx
-import Navigation from "../../components/Navigation";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./Step1.css";
@@ -35,7 +34,6 @@ function Step1() {
 
   return (
     <>
-      <Navigation 
         isAuthed={isAuthed}
         memberId={user.memberId}
         memberName={user.memberName}
@@ -45,7 +43,6 @@ function Step1() {
           localStorage.removeItem("user");
           window.location.reload();
         }}
-      />
       <div className="step1">
         <h1 className="step1-title">날짜 선택하기</h1>
         <p className="step1-subtitle">
