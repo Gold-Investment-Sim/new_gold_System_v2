@@ -22,6 +22,9 @@ public class MetricsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
     ) {
-        return service.getSeries(metric, from, to);
+        System.out.println("📩 [요청 도착] metric=" + metric + ", from=" + from + ", to=" + to);
+        List<SeriesPointDto> result = service.getSeries(metric, from, to);
+        System.out.println("📤 [응답 데이터 수] = " + result.size());
+        return result;
     }
 }
