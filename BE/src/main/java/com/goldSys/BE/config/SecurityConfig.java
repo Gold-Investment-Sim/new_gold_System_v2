@@ -38,8 +38,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/news/**").permitAll()
                         .requestMatchers("/api/metrics/**").permitAll()
-                        .requestMatchers("/api/simulation/**").authenticated()
-                        .requestMatchers("/api/history/**").authenticated()
+                        .requestMatchers("/api/simulation/**").permitAll()
+                        .requestMatchers("/api/history/**").permitAll()
                         // 그 밖의 모든 요청
                         .anyRequest().authenticated()
                 )
