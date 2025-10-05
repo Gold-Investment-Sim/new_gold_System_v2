@@ -20,11 +20,10 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Override
     public List<SeriesPointDto> getSeries(String metric, LocalDate from, LocalDate to) {
+        System.out.println("🔍 [DB조회] metric=" + metric + " 기간=" + from + " ~ " + to);
         List<QuotesDaily> rows = repo.findByDateBetweenOrderByDate(from, to);
 
-        // metric 문자열 → getter 호출 (ex. "fx_rate" -> getFxRate)
-        String field = metric.toLowerCase();
-        String getterName = switch (field) {
+        String getterName = switch (metric.toLowerCase()) {
             case "krw_g_open"   -> "getKrwGOpen";
             case "krw_g_close"  -> "getKrwGClose";
             case "usd_oz_open"  -> "getUsdOzOpen";

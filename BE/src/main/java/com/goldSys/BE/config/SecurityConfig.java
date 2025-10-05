@@ -31,16 +31,19 @@ public class SecurityConfig {
                 )
                 // 요청별 권한 규칙
                 .authorizeHttpRequests(auth -> auth
-                        // CORS preflight
+                        // ✅ CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 공개 API
+                        // ✅ 공개 API
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/simulation/**").permitAll()
                         .requestMatchers("/api/news/**").permitAll()
                         .requestMatchers("/api/history/**").permitAll()
                         .requestMatchers("/api/metrics/**").permitAll()
-                        .requestMatchers("/api/asset/**").permitAll()   // ✅ balance 조회 API 허용
+                        .requestMatchers("/api/asset/**").permitAll()
+
+                        // ✅ 새로 추가: 거래 관련 API 임시 오픈
+                        .requestMatchers("/api/trade/**").permitAll()
 
                         // 그 밖의 모든 요청은 인증 필요
                         .anyRequest().authenticated()
