@@ -1,4 +1,4 @@
-package com.goldSys.BE.trade.service.impl;
+package com.goldSys.BE.trade.service;
 
 import com.goldSys.BE.member.entity.Member;
 import com.goldSys.BE.member.repository.MemberAssetRepository;
@@ -8,7 +8,6 @@ import com.goldSys.BE.result.repository.SimulationResultRepository;
 import com.goldSys.BE.trade.dto.TradeRequestDto;
 import com.goldSys.BE.trade.entity.SimulationTrade;
 import com.goldSys.BE.trade.repository.SimulationTradeRepository;
-import com.goldSys.BE.trade.service.TradeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
