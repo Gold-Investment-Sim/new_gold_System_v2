@@ -2,14 +2,14 @@
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  box-shadow: 0 1px 0 0 rgba(0,0,0,.02);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, .02);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .metric-card.mini:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .metric-head {
@@ -42,4 +42,35 @@
 
 .metric-body {
   padding: 6px 10px;
+}
+
+/* =========================
+   ⚙️ 공통 로딩 스타일 (회색)
+   ========================= */
+
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.h80 { height: 80px; }
+.h320 { height: 320px; }
+
+/* ⚙️ 작고 느린 회색 로딩 */
+.mini .spinner {
+  width: 15px;                   /* ← 작게 */
+  height: 15px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-top-color: rgba(0, 0, 0, 0.55);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;   /* ← 느리게 */
+}
+
+/* 회전 애니메이션 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

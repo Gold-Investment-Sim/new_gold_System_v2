@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // ✅ 공개 API
+                        .requestMatchers("/api/lstm/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/simulation/**").permitAll()
                         .requestMatchers("/api/news/**").permitAll()

@@ -1,0 +1,18 @@
+{
+  "feature_cols": [
+    "KRW_G_OPEN",
+    "FX_RATE",
+    "VIX",
+    "ETF_VOLUME"
+  ],
+  "target_col": "KRW_G_CLOSE",
+  "all_cols": [
+    "KRW_G_OPEN",
+    "FX_RATE",
+    "VIX",
+    "ETF_VOLUME",
+    "KRW_G_CLOSE"
+  ],
+  "target_index": 4,
+  "window_size": 30
+}

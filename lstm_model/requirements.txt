@@ -1,0 +1,27 @@
+# ================================
+# LSTM 모델 서버 환경 설정 가이드
+# 권장 Python 버전: 3.10 ~ 3.11
+# ================================
+#
+# 1. 가상환경 생성
+#    python -m venv .venv
+#
+# 2. 가상환경 활성화
+#    Windows: .venv\Scripts\activate
+#    macOS/Linux: source .venv/bin/activate
+#
+# 3. 의존성 설치
+#    pip install -r requirements.txt
+#
+# 4. 서버 실행
+#    python -m uvicorn app:app --reload --port 8000
+# ================================
+
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pandas==2.2.2
+tensorflow==2.20.0
+joblib==1.4.2
+pydantic==1.10.17
+scikit-learn==1.5.2
+

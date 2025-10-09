@@ -20,7 +20,6 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Override
     public List<SeriesPointDto> getSeries(String metric, LocalDate from, LocalDate to) {
-        System.out.println("🔍 [DB조회] metric=" + metric + " 기간=" + from + " ~ " + to);
         List<QuotesDaily> rows = repo.findByDateBetweenOrderByDate(from, to);
 
         String getterName = switch (metric.toLowerCase()) {
