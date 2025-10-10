@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./Glossary.css";
-
-const dummyTerms = [
-  { term: "금 ETF", category: "투자상품", definition: "금 가격을 추종하는 상장지수펀드" },
-  { term: "온스(Oz)", category: "단위", definition: "국제 금 거래 단위 (1oz = 31.1035g)" },
-  { term: "스팟가격", category: "시장용어", definition: "현재 시점의 금 현물 거래가격" },
-];
 
 export default function Glossary() {
   const [search, setSearch] = useState("");
+  const [terms, setTerms] = useState([]);
+  const [openIndex, setOpenIndex] = useState(null); // ✅ 어떤 카드가 열렸는지 저장
 
-  const filtered = dummyTerms.filter((t) =>
+  useEffect(() => {
+    axios.get("http://localhost:8080/api/glossary")
+      .then(res => setTerms(res.data))
+      .catch(err => console.error("용어 불러오기 실패:", err));
+  }, []);
+
+  const filtered = terms.filter((t) =>
     t.term.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -26,13 +29,26 @@ export default function Glossary() {
       />
       <div className="glossary-list">
         {filtered.map((item, i) => (
-          <div key={i} className="glossary-card">
+          <div
+            key={i}
+            className={`glossary-card ${openIndex === i ? "open" : ""}`}
+            onClick={() => setOpenIndex(openIndex === i ? null : i)}
+          >
             <h3>{item.term}</h3>
             <p className="glossary-category">{item.category}</p>
             <p>{item.definition}</p>
+
+            {/* ✅ summary 영역 (클릭 시 확장) */}
+            {openIndex === i && (
+              <div className="glossary-summary">
+                <p>{item.summary}</p>
+              </div>
+            )}
           </div>
         ))}
-        {filtered.length === 0 && <p className="no-result">검색 결과가 없습니다.</p>}
+        {filtered.length === 0 && (
+          <p className="no-result">검색 결과가 없습니다.</p>
+        )}
       </div>
     </div>
   );

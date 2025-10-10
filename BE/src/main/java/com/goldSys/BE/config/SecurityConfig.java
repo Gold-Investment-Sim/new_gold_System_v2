@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/history/**").permitAll()
                         .requestMatchers("/api/metrics/**").permitAll()
                         .requestMatchers("/api/asset/**").permitAll()
-
+                        .requestMatchers("/api/glossary/**").permitAll()
                         // ✅ 새로 추가: 거래 관련 API 임시 오픈
                         .requestMatchers("/api/trade/**").permitAll()
 
