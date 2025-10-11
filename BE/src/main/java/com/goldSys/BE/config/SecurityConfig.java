@@ -43,8 +43,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/metrics/**").permitAll()
                         .requestMatchers("/api/asset/**").permitAll()
 
-                        // ✅ 새로 추가: 거래 관련 API 임시 오픈
+
+                        // ✅ 새로 추가: 거래 관련 API 임시 오픈, GPT 오픈
                         .requestMatchers("/api/trade/**").permitAll()
+                        .requestMatchers("/api/gpt/**").permitAll()
 
                         // 그 밖의 모든 요청은 인증 필요
                         .anyRequest().authenticated()
