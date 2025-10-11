@@ -17,24 +17,11 @@
 
 ### 1. 설정 파일 준비
 
-백엔드(`BE`) 프로젝트를 실행하기 전에, `src/main/resources` 폴더에 있는 `application.properties.example` 파일을 복사하여 `application.properties`라는 이름의 새 파일을 만드세요.
+백엔드(`BE`) 프로젝트를 실행하기 전에, `src/main/resources` 폴더에  `application.properties`라는 이름의 새 파일을 만드세요.
 
 ### 2. 설정 값 입력
 
-새로 만든 `application.properties` 파일을 열고, 아래와 같이 **자신만의 로컬 DB 정보와 API 키**를 입력해주세요. 이 파일은 `.gitignore`에 등록되어 있어 GitHub에 공유되지 않으므로 안심하고 개인 정보를 입력하세요.
-
-```properties
-# 데이터베이스 설정
-spring.datasource.url=jdbc:mysql://localhost:3306/mydb
-spring.datasource.username=내_DB_아이디
-spring.datasource.password=내_DB_비밀번호
-
-# Google Gemini API 설정
-gemini.api-key=내가_발급받은_Gemini_API_키
-# ...
-```
-
-
+새로 만든 `application.properties` 파일을 열고 코드를 넣어야합니다.
 
 
 ### 📌 전체 개발 흐름
@@ -44,8 +31,6 @@ gemini.api-key=내가_발급받은_Gemini_API_키
 **`이슈 생성` ➔ `브랜치 생성` ➔ `코드 작업 및 커밋` ➔ `Pull Request` ➔ `코드 리뷰` ➔ `머지` ➔ `브랜치 삭제`**
 
 ---
-
-%%%%%%%%%%%%%%%%%%%모든 깃허브 조작은 웬만하면 초반에는 GUI 방식을 권장합니다!!!%%%%%%%%%%%%%%%%뭐 예를들어 이거를 바꿨다 치면.
 
 
 ### ✅ Step 1: 이슈 (Issue) 생성
