@@ -23,7 +23,7 @@ export default function Glossary() {
       <input
         type="text"
         className="glossary-search"
-        placeholder="용어를 검색하세요..."
+        placeholder="용어를 검색하세요."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />

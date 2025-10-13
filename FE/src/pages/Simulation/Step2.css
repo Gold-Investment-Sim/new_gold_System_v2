@@ -8,44 +8,74 @@
   text-align: center;
   padding: 100px 20px 40px; /* 상단 여백 크게 줌 */
 }
-
 .step2-title {
-  font-size: 24px;
-  font-weight: bold;
-
-  margin-bottom: 35px;
+  font-size: 26px;
+  font-weight: 700;
   color: #222;
+  margin-bottom: 10px;
 }
 
 .step2-subtitle {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 35px; /* 제목과 기사 리스트 사이 간격 */
+  font-size: 17px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.divider {
+  width: 60%;
+  height: 2px;
+  background-color: #f0f0f0;
+  border: none;
+  margin: 0 auto 35px;
 }
 
 .article-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%;
-  max-width: 700px; /* 카드 리스트 넓이 제한 */
-  margin-bottom: 32px;
+  max-width: 820px; /* 기존 700 → 820 (본문 가로 확장) */
+  margin: 0 auto 32px;
+  line-height: 1.6; /* 줄간격 여유 있게 */
 }
 
+/* ===== ✍️ ② 기사 카드 가독성 & 분위기 ===== */
 .article-card {
   background: #ffffff;
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 1px solid #eee;
+  padding: 22px 26px; /* 여백 확대 */
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
   font-size: 16px;
   color: #333;
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
+  text-align: justify;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: all 0.25s ease;
+}
+.article-card-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+.article-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 10px;
+}
+.article-card p {
+  margin-bottom: 10px;
+}
+
+.article-card a {
+  color: #0072ff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.article-card a:hover {
+  text-decoration: underline;
 }
 
 .article-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .step2-btn {
@@ -65,13 +95,35 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-
-/* ===== 도크 레이아웃: 사이드 여백 중앙 + 화면 세로 중앙 ===== */
-:root{
-  --dock-pad: 400px;   /* 본문 좌우 여백(= 도크 영역 폭) */
-  --dock-width: 170px; /* 도크 컬럼 실제 폭 */
+.load-more-btn {
+  margin: 20px auto;
+  display: block;
+  background: #f0f0f0;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-
+.expand-text-btn {
+  background: none;
+  border: none;
+  color: #2f80ed;
+  font-weight: 500;
+  cursor: pointer;
+}
+.expand-text-btn:hover {
+  color: #256adf;
+}
+.load-more-btn:hover {
+  background: #e0e0e0;
+}
+/* ===== 도크 레이아웃: 사이드 여백 중앙 + 화면 세로 중앙 ===== */
+/* ===== 🎨 ① 레이아웃 조정: 본문 폭 넓히기 & 도크 여백 축소 ===== */
+:root{
+  --dock-pad: 300px;   /* 기존 400px → 300px (좌우 여백 줄이기) */
+  --dock-width: 160px; /* 도크 폭 살짝 축소 */
+}
 .page-with-docks { padding-left: var(--dock-pad); padding-right: var(--dock-pad); }
 
 .side-dock{
@@ -111,10 +163,22 @@
 }
 .expand-btn:hover{ background: #f3f4f6; }
 
-/* 반응형 */
+/* ===== 📱 반응형 보정 (모바일/태블릿) ===== */
 @media (max-width: 1200px){
   .page-with-docks{ padding-left: 0; padding-right: 0; }
   .side-dock{ display: none; }
+}
+
+@media (max-width: 768px) {
+  .article-list {
+    max-width: 90%;
+  }
+  .article-card {
+    padding: 18px 20px;
+  }
+  .step2-title {
+    font-size: 22px;
+  }
 }
 
 /* === MetricCard 모달 공통 === */
