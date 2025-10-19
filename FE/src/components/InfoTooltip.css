@@ -1,0 +1,57 @@
+/* src/components/InfoTooltip.css */
+.it-wrap {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.it-icon {
+  font-size: 14px;
+  color: #6b7280;            /* 기본 회색 */
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.it-icon:hover {
+  color: #111;               /* hover 시 진한 검정 */
+}
+
+.it-box {
+  position: fixed;
+  z-index: 10000;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #374151;
+  /* width 삭제 */
+  max-width: 500px;        /* 화면 너비 초과 방지 */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  white-space: pre-line;   /* 줄바꿈 유지 */
+}
+
+
+
+.it-box.top::after,
+.it-box.bottom::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+}
+
+.it-box.bottom::after {
+    top: -12px;
+    left: 12px;
+    border-bottom-color: #e5e7eb;
+}
+
+.it-box.top::after {
+    bottom: -12px;
+    left: 12px;
+    border-top-color: #e5e7eb;
+}

@@ -1,3 +1,4 @@
+// src/components/MetricMini.jsx
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
@@ -6,18 +7,25 @@ import "./MetricMini.css";
 const toISO = (d) => {
   const x = new Date(d);
   x.setHours(12, 0, 0, 0);
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(
-    x.getDate()
-  ).padStart(2, "0")}`;
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
 };
 
 export default function MetricMini({ title, metric, selectedDate, onClick, onExpand }) {
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true); // ✅ 초기 로딩 true
+  const [loading, setLoading] = useState(true);
+
   const fire = useMemo(() => onClick || onExpand, [onClick, onExpand]);
   const payload = useMemo(() => ({ metric, title }), [metric, title]);
   const normMetric = useMemo(() => (metric === "gold_close" ? "krw_g_close" : metric), [metric]);
   const isPred = normMetric === "pred_close";
+
+  const unit = useMemo(() => {
+    if (title.includes("환율")) return "원/USD";
+    if (title.includes("금")) return "원/g";
+    if (title.includes("VIX")) return "pt";
+    if (title.includes("ETF")) return "주";
+    return "";
+  }, [title]);
 
   useEffect(() => {
     if (!selectedDate) return;
@@ -30,9 +38,7 @@ export default function MetricMini({ title, metric, selectedDate, onClick, onExp
     start.setDate(start.getDate() - 30);
 
     const url = isPred ? "/api/lstm/series-all" : "/api/metrics/series";
-    const params = isPred
-      ? { to: toISO(end) }
-      : { metric: normMetric, from: toISO(start), to: toISO(end) };
+    const params = isPred ? { to: toISO(end) } : { metric: normMetric, from: toISO(start), to: toISO(end) };
 
     const ctrl = new AbortController();
     axios
@@ -70,7 +76,7 @@ export default function MetricMini({ title, metric, selectedDate, onClick, onExp
       </div>
 
       <div className="metric-body mini">
-        {(loading || rows.length === 0) ? ( // ✅ 로딩 중엔 "데이터 없음" 표시 안 함
+        {loading || rows.length === 0 ? (
           <div className="loader-wrap h80">
             <div className="spinner" />
           </div>
@@ -81,22 +87,9 @@ export default function MetricMini({ title, metric, selectedDate, onClick, onExp
               <YAxis hide />
               <Tooltip
                 wrapperStyle={{ zIndex: 1000 }}
-                contentStyle={{ fontSize: "12px", padding: "4px 6px" }}
+                contentStyle={{ fontSize: "12px", padding: "6px 8px", lineHeight: "1.4em" }}
                 labelFormatter={(l) => `날짜: ${l}`}
-                formatter={(v) => [
-                  `${v.toLocaleString()} ${
-                    title.includes("환율")
-                      ? "원/USD"
-                      : title.includes("금")
-                      ? "원/g"
-                      : title.includes("VIX")
-                      ? "pt"
-                      : title.includes("ETF")
-                      ? "주"
-                      : ""
-                  }`,
-                  title,
-                ]}
+                formatter={(v) => [`${Number(v).toLocaleString()} ${unit}`, title]}
               />
               <Line type="monotone" dataKey="y" dot={false} />
             </LineChart>

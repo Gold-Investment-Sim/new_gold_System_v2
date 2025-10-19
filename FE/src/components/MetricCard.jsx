@@ -1,38 +1,37 @@
+// src/components/MetricCard.jsx
 import { useEffect, useState, useMemo } from "react";
 import { ResponsiveContainer, LineChart, Line, Tooltip, CartesianGrid, XAxis } from "recharts";
 import axios from "axios";
+import InfoTooltip from "./InfoTooltip";
 import "./MetricCard.css";
 
 const toISO = (d) => {
   const x = new Date(d);
   x.setHours(12, 0, 0, 0);
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(
-    x.getDate()
-  ).padStart(2, "0")}`;
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
 };
 
 const KEYS = ["All", "7y", "5y", "3y", "1y", "6m", "3m", "1m", "15d"];
-const DAYS = {
-  "15d": 15,
-  "1m": 30,
-  "3m": 90,
-  "6m": 182,
-  "1y": 365,
-  "3y": 1095,
-  "5y": 1825,
-  "7y": 2555,
-};
+const DAYS = { "15d": 15, "1m": 30, "3m": 90, "6m": 182, "1y": 365, "3y": 1095, "5y": 1825, "7y": 2555 };
 
 export default function MetricCard({ title, metric, selectedDate, onClose, defaultUnit = "1m" }) {
   const [unit, setUnit] = useState(defaultUnit);
   const [data, setData] = useState([]);
   const [allData, setAllData] = useState([]);
-  const [loading, setLoading] = useState(true); // ✅ 초기 로딩 true
+  const [loading, setLoading] = useState(true);
 
   const normMetric = useMemo(() => (metric === "gold_close" ? "krw_g_close" : metric), [metric]);
   const isPred = normMetric === "pred_close";
 
-  // ✅ LSTM 전구간 로드
+  const ulabel = useMemo(() => {
+    if (title.includes("환율")) return "원/USD";
+    if (title.includes("금")) return "원/g";
+    if (title.includes("VIX")) return "pt";
+    if (title.includes("ETF")) return "주";
+    return "";
+  }, [title]);
+
+  // LSTM 전구간 로드
   useEffect(() => {
     if (!selectedDate || !isPred) return;
     setLoading(true);
@@ -41,12 +40,9 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
     const to = new Date(selectedDate);
     to.setDate(to.getDate() - 1);
     const ctrl = new AbortController();
+
     axios
-      .get("/api/lstm/series-all", {
-        withCredentials: true,
-        params: { to: toISO(to) },
-        signal: ctrl.signal,
-      })
+      .get("/api/lstm/series-all", { withCredentials: true, params: { to: toISO(to) }, signal: ctrl.signal })
       .then(({ data }) => {
         const rows = Array.isArray(data) ? data : [];
         const sorted = rows
@@ -61,7 +57,7 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
     return () => ctrl.abort();
   }, [selectedDate, isPred]);
 
-  // ✅ 일반 지표 범위 로드
+  // 일반 지표 범위 로드
   useEffect(() => {
     if (!selectedDate || isPred) return;
     setLoading(true);
@@ -71,11 +67,13 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
     end.setDate(end.getDate() - 1);
     const start = new Date(end);
     const k = unit.toLowerCase();
+
     if (k === "all") start.setFullYear(end.getFullYear() - 10);
     else if (k.endsWith("y")) start.setFullYear(end.getFullYear() - parseInt(k.replace("y", ""), 10));
     else start.setDate(end.getDate() - (DAYS[k] ?? 30));
 
     const ctrl = new AbortController();
+
     axios
       .get("/api/metrics/series", {
         withCredentials: true,
@@ -96,13 +94,14 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
     return () => ctrl.abort();
   }, [normMetric, selectedDate, unit, isPred]);
 
-  // ✅ LSTM 슬라이스
+  // LSTM 슬라이스
   const sliced = useMemo(() => {
     if (!isPred) return data;
     if (!allData.length) return [];
     const end = new Date(allData[allData.length - 1].x);
     const k = unit.toLowerCase();
     let start;
+
     if (k === "all") start = new Date(allData[0].x);
     else if (k.endsWith("y")) {
       start = new Date(end);
@@ -112,6 +111,7 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
       start = new Date(end);
       start.setDate(end.getDate() - d);
     }
+
     return allData.filter((r) => {
       const dx = new Date(r.x);
       return dx >= start && dx <= end;
@@ -122,7 +122,12 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <header className="metric-head">
-          <h3 className="metric-title">{title}</h3>
+          <h3 className="metric-title">
+            {title}
+            {/* 제목 옆 설명 툴팁 */}
+            <InfoTooltip title={title} isPred={isPred} />
+          </h3>
+
           <div className="metric-range">
             <div className="segmented" role="radiogroup" aria-label="기간">
               {KEYS.map((key) => {
@@ -140,17 +145,13 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
                 );
               })}
             </div>
-            <button className="close-btn" onClick={onClose}>
-              X
-            </button>
+            <button className="close-btn" onClick={onClose} aria-label="닫기">X</button>
           </div>
         </header>
 
         <div className="metric-body">
-          {(loading || sliced.length === 0) ? ( // ✅ 로딩 중엔 "데이터 없음" 숨김
-            <div className="loader-wrap h320">
-              <div className="spinner" />
-            </div>
+          {loading || sliced.length === 0 ? (
+            <div className="loader-wrap h320"><div className="spinner" /></div>
           ) : (
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={sliced} margin={{ top: 12, right: 16, bottom: 8, left: 12 }}>
@@ -159,22 +160,9 @@ export default function MetricCard({ title, metric, selectedDate, onClose, defau
                 <Line type="monotone" dataKey="y" strokeWidth={2} dot={false} />
                 <Tooltip
                   wrapperStyle={{ zIndex: 1000 }}
-                  contentStyle={{ fontSize: "12px", padding: "4px 6px" }}
+                  contentStyle={{ fontSize: "12px", padding: "6px 8px" }}
                   labelFormatter={(l) => `날짜: ${l}`}
-                  formatter={(v) => [
-                    `${v.toLocaleString()} ${
-                      title.includes("환율")
-                        ? "원/USD"
-                        : title.includes("금")
-                        ? "원/g"
-                        : title.includes("VIX")
-                        ? "pt"
-                        : title.includes("ETF")
-                        ? "주"
-                        : ""
-                    }`,
-                    title,
-                  ]}
+                  formatter={(v) => [`${Number(v).toLocaleString()} ${ulabel}`, title]}
                 />
               </LineChart>
             </ResponsiveContainer>

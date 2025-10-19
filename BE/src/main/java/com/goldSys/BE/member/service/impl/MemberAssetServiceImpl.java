@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberAssetServiceImpl implements MemberAssetService {
     private final MemberAssetRepository assetRepo;
     private final MemberRepository memberRepo;
-    private static final long DEFAULT_BALANCE = 600_000L;
+    private static final long DEFAULT_BALANCE = 3_000_000L;
 
     @Override
     @Transactional
