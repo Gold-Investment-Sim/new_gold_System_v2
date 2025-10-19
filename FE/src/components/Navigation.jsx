@@ -31,7 +31,7 @@ function Navigation({ isAuthed, memberId, memberName, memberEmail, balance, onLo
   return (
     <nav className="nav">
       <div className="nav-container">
-        <div className="nav-logo">GoldSim</div>
+         <Link to="/" className="nav-logo" aria-label="홈으로">GoldSim</Link>
 
         <div className="nav-menu">
           <Link to="/simulation">투자 시뮬레이션</Link>
