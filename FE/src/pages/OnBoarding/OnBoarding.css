@@ -7,7 +7,6 @@
   align-items: center;
   height: 100vh; /* 화면 전체 중앙 배치 */
   text-align: center;
-  padding-top: 80px; /* 네비게이션바 높이만큼 여백 */
   background-color: #ffffff;
 }
 

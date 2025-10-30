@@ -10,15 +10,23 @@ export default function Step2() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const selectedDate = state?.date;
-
+  const [visibleCount, setVisibleCount] = useState(5);
   const [articles, setArticles] = useState([]);
   const [active, setActive] = useState(null); // { metric, title }
 
+  const [expandedIndices, setExpandedIndices] = useState([]);
+  const toggleExpand = (index) => {
+    setExpandedIndices((prev) =>
+      prev.includes(index)
+        ? prev.filter((i) => i !== index)
+        : [...prev, index]
+    );
+  };
   const fmt = (dObj) => {
     const y = dObj.getFullYear();
     const m = String(dObj.getMonth() + 1).padStart(2, "0");
     const d = String(dObj.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
+    return `${y}${m}${d}`;
   };
 
   useEffect(() => {
@@ -67,13 +75,50 @@ export default function Step2() {
 
         <div className="article-list">
           {articles?.length ? (
-            articles.map((news, i) => (
-              <div key={i} className="article-card">
-                <h3>{news.articleTitle}</h3>
-                <p>{news.summaryFull ? news.summaryFull : news.articleContent}</p>
-                <a href={news.url} target="_blank" rel="noreferrer">원문 보기</a>
-              </div>
-            ))
+            <>
+              {articles.slice(0, visibleCount).map((news, i) => {
+                const index = i;
+                const content =
+                  news.summaryFull || news.articleContent || "";
+                const MAX_LENGTH = 400;
+                const isExpanded = expandedIndices.includes(index);
+                const displayText =
+                  isExpanded || content.length <= MAX_LENGTH
+                    ? content
+                    : content.slice(0, MAX_LENGTH) + "...";
+
+                return (
+                  <div key={i} className="article-card">
+                    <h3>{news.articleTitle}</h3>
+                    <p>{displayText}</p>
+
+                    <div className="article-card-buttons">
+                      {content.length > MAX_LENGTH && (
+                        <button
+                          className="expand-text-btn"
+                          onClick={() => toggleExpand(index)}
+                        >
+                          {isExpanded ? "접기 ▲" : "펼치기 ▼"}
+                        </button>
+                      )}
+                      <a href={news.url} target="_blank" rel="noreferrer">
+                        원문 보기
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* ✅ 더보기 버튼 (5개씩 추가 로드) */}
+              {visibleCount < articles.length && (
+                <button
+                  className="load-more-btn"
+                  onClick={() => setVisibleCount((prev) => prev + 5)}
+                >
+                  더보기
+                </button>
+              )}
+            </>
           ) : (
             <p>뉴스가 없습니다.</p>
           )}
