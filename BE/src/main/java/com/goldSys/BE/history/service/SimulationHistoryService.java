@@ -12,6 +12,6 @@ public interface SimulationHistoryService {
 
     HistoryStatsDto getHistoryStats(Long memberNo, String from, String to, String type);
 
-    HistorySummaryDto getHistorySummary(Long memberNo);
+    HistorySummaryDto getHistorySummary(Long memberNo, String from, String to);
 
 }

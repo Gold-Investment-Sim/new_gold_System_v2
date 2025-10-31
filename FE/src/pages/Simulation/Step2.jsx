@@ -62,10 +62,10 @@ export default function Step2() {
         {/* 우측 도크: 2개 */}
         <aside className="side-dock right">
           <div className="dock-inner">
-            <MetricMini title="금 시세(원/g)"  metric="krw_g_close" selectedDate={selectedDate}
-              onClick={() => setActive({ metric: "krw_g_close", title: "금 시세(원/g)" })} />
-            <MetricMini title="LSTM 예측(원/g)" metric="pred_close" selectedDate={selectedDate}
-              onClick={() => setActive({ metric: "pred_close", title: "LSTM 예측(원/g)" })} />
+            <MetricMini title="국내 금 시세(원/g)"  metric="krw_g_close" selectedDate={selectedDate}
+              onClick={() => setActive({ metric: "krw_g_close", title: "국내 금 시세(원/g)" })} />
+            <MetricMini title="GoldSim 예측(원/g)" metric="pred_close" selectedDate={selectedDate}
+              onClick={() => setActive({ metric: "pred_close", title: "GoldSim 예측(원/g)" })} />
           </div>
         </aside>
 
