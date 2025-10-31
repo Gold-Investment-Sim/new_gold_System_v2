@@ -16,7 +16,7 @@
 .hd-page {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 120px 16px 32px;
 }
 
 .hd-title {
@@ -73,7 +73,7 @@
 }
 
 .hd .hd-label {
-    font-size: 11px;
+    font-size: 13px;
     color: #475569;
     margin-bottom: 4px;
 }
@@ -116,6 +116,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+    table-layout: fixed;
 }
 
 .hd-table thead {
@@ -124,14 +125,12 @@
 
 .hd-table th,
 .hd-table td {
-    padding: 6px 6px;
+    padding: 10px 6px;
     border-bottom: 1px solid #eef2f7;
-    text-align: left;
+    text-align: center;
 }
 
-.hd-table td.right {
-    text-align: right;
-}
+
 
 /* ===== 페이지네이션 ===== */
 .hd-row {
@@ -174,7 +173,8 @@
 
 /* ===== 파이차트 카드 (높이 확장) ===== */
 .hd-card.chart-card {
-    min-height: 460px;   /* 기존보다 더 크게 */
+    min-height: 460px;
+    /* 기존보다 더 크게 */
 }
 
 .hd-card.chart-card .hd-card-body {
@@ -182,24 +182,33 @@
 }
 
 .hd-card.chart-card .chart-wrapper {
-    height: 420px;      /* 실제 차트 영역 높이 */
+    height: 420px;
+    /* 실제 차트 영역 높이 */
 }
 
 
 /* 성과 요약 카드 높이 고정 */
 .hd-card.summary-card {
-    min-height: 245px;   /* 원하는 값으로 수정 */
-    display: flex;            /* 카드 자체를 flex 컨테이너 */
+    min-height: 245px;
+    /* 원하는 값으로 수정 */
+    display: flex;
+    /* 카드 자체를 flex 컨테이너 */
     flex-direction: column;
 }
 
 
 .hd-card.summary-card .hd-card-body {
-    flex: 1;                  /* 남는 공간 차지 */
-    display: flex;
-    align-items: center;      /* 세로 중앙 정렬 */
-    font-size: 16px;          /* 글씨 조금 크게 */
-    line-height: 1.6;         /* 줄간격 넉넉히 */
+    padding-top: 25px;
+    flex: 1;
+    /* 남는 공간 차지 */
+    /* display: flex; */
+    align-items: center;
+    justify-items: center;
+    /* 세로 중앙 정렬 */
+    font-size: 16px;
+    /* 글씨 조금 크게 */
+    line-height: 1.6;
+    /* 줄간격 넉넉히 */
 }
 
 /* ===== 이력 테이블 스크롤 영역(고정 높이) ===== */
@@ -255,3 +264,92 @@
 }
 
 
+/* 테이블 툴팁용 아이콘 */
+.hd-info {
+    margin-left: 4px;
+    font-size: 12px;
+    color: #64748b;
+    cursor: help;
+    vertical-align: middle;
+    transition: color 0.15s ease;
+}
+
+.hd-info:hover {
+    color: #2f80ed;
+}
+
+/* ===== PnL 배지: 상승=빨강, 하락=파랑 ===== */
+.pnl-badge {
+    display: inline-block;
+    min-width: 64px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: right;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+    /* 숫자 폭 고정 */
+}
+
+/* 숫자만, 배경 제거 버전 */
+.pnl-badge {
+    font-weight: 700;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+/* 상승=빨강, 하락=파랑 */
+.pnl-badge.pos {
+    color: #d32f2f;
+}
+
+/* 빨강 */
+.pnl-badge.neg {
+    color: #1976d2;
+}
+
+/* 파랑 */
+.pnl-badge.zero {
+    color: #475569;
+}
+
+/* 회색 */
+
+.hd-empty-cell {
+    height: 500px;
+    /* 필요 시 480~520px로 미세 조정 */
+    padding: 0;
+    text-align: center;
+    color: #64748b;
+    vertical-align: middle;
+}
+
+.hd-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.hd-range {
+    font-size: 12px;
+    color: #64748b;
+    background: #fff;
+    padding: 2px 8px;
+}
+
+/* History.css 내 */
+.kpi {
+  padding: 8px 8px 8px 8px;
+  text-align: center; /* 텍스트 중앙 정렬 */
+}
+.kpi-title {
+  font-size: 16px;
+  color: #64748b;
+}
+.kpi-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}

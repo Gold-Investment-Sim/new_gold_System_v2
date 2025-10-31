@@ -20,6 +20,8 @@ export default function InfoTooltip({ title, isPred = false }) {
             return "GoldSim이 과거 금 시세·환율·VIX·ETF 데이터를 기반으로 생성한 예측 결과입니다.\n통계적 모델 분석을 통해 향후 가격 흐름을 추정합니다.";
         if (title?.includes("금"))
             return "국제 금 시세(USD/oz)를 원화 기준 g(그램)당 가격으로 환산한 값입니다.\n실제 금 거래 시 참고되는 대표적인 단가 지표입니다.";
+        if (title?.includes("PnL"))
+            return "PnL(Profit and Loss)은 각 거래의 손익을 의미합니다.\n양수(▲)는 이익, 음수(▼)는 손실을 뜻합니다."; 
         return "";
     }, [title, isPred]);
 

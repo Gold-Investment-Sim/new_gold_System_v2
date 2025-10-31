@@ -52,10 +52,13 @@ public class SimulationHistoryController {
     }
 
     @GetMapping("/summary")
-    public HistorySummaryDto getSummary(HttpSession session) {
+    public HistorySummaryDto getSummary(HttpSession session,
+                                        @RequestParam String from,
+                                        @RequestParam String to,
+                                        @RequestParam(defaultValue = "") String type) {
         Object uno = session.getAttribute("LOGIN_NO");
         if (uno == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         Long memberNo = Long.valueOf(uno.toString());
-        return service.getHistorySummary(memberNo);
+        return service.getHistorySummary(memberNo, from, to);
     }
 }
