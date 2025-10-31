@@ -17,7 +17,7 @@ public class GptServiceImpl implements GptService {
     @Override
     public String generateAnalysis(String resultText) {
         // GPT에게 어떤 역할을 수행할지 알려주는 부분입니다. (가장 중요!)
-        String systemPrompt = "당신은 금융 투자 전문가입니다. 다음 투자 결과에 대해 초보 투자자가 이해하기 쉽게 두세 문장으로 간단히 분석해주세요.";
+        String systemPrompt =  "당신은 금 투자 전문가 입니다. 이날 왜 이런 금값 동향이 일어났는지 전날의 빅 뉴스를 바탕으로 분석/요약해줘. 초보자들이 알기 쉽게 2~3문장으로 요약해줘";
 
         try {
             // Spring AI의 ChatClient를 사용하여 API 호출
