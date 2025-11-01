@@ -75,7 +75,7 @@ public class TradeServiceImpl implements TradeService {
         // ✅ 4. 거래 저장
         SimulationTrade trade = SimulationTrade.builder()
                 .member(member)
-                .tradeDate(LocalDate.now())
+                .tradeDate(dto.getTradeDate() != null ? dto.getTradeDate() : LocalDate.now())
                 .tradeType(dto.getTradeType())
                 .goldPrice(dto.getGoldPrice())
                 .quantity(dto.getQuantity())
