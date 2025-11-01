@@ -112,6 +112,7 @@ function Step3() {
       quantity: buyNum > 0 ? buyNum : sellNum,
       currentBalance: balance,
       predict: "예측없음",
+      tradeDate: new Date(selectedDate).toISOString().split("T")[0]// ✅ 추가
     };
 
     console.log("=== 거래 버튼 클릭 ===");
