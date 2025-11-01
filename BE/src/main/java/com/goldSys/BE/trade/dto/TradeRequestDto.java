@@ -1,14 +1,16 @@
 package com.goldSys.BE.trade.dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.math.BigDecimal;
 
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
 public class TradeRequestDto {
-    private Long memberNo;
-    private String tradeType;     // "매수" / "매도"
-    private BigDecimal goldPrice; // 금 시세 (원/g)
-    private BigDecimal quantity;  // 거래 수량 (g)
-    private String predict;       // 예측 정보 (선택)
+    private Long memberNo;           // 회원 번호
+    private String tradeType;        // 매수 or 매도
+    private BigDecimal goldPrice;    // 금 시세
+    private BigDecimal quantity;     // 거래 수량(g)
+    private BigDecimal currentBalance; // 현재 잔액
+    private String predict;          // 예측 결과 (옵션)
 }

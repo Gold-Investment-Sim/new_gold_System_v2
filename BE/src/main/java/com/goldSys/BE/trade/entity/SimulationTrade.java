@@ -36,6 +36,10 @@ public class SimulationTrade {
     @Column(name = "AMOUNT", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
+    // ✅ 추가: 거래 손익 (Profit and Loss)
+    @Column(name = "PNL", precision = 15, scale = 2)
+    private BigDecimal pnl;
+
     @Column(name = "CREATED_AT", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private java.sql.Timestamp createdAt;
