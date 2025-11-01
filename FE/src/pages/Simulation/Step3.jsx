@@ -8,6 +8,7 @@ function Step3() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // ✅ 로그인 상태 확인
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const isAuthed = !!user.memberId;
 
@@ -15,32 +16,45 @@ function Step3() {
   console.log("로그인 여부:", isAuthed ? "로그인 O" : "로그인 X");
   console.log("유저 정보:", user);
 
+  // ✅ 선택한 날짜 정보
   const selectedDate = location.state?.date;
   const formattedDate = selectedDate
     ? new Date(selectedDate).toLocaleDateString("ko-KR")
     : "2024. 12. 23.";
 
+  // ✅ 주요 상태 관리
   const [balance, setBalance] = useState(isAuthed ? user.balance ?? 0 : 600000);
   const [ownedGold, setOwnedGold] = useState(0);
   const [goldPrice, setGoldPrice] = useState(0);
-  const [priceChange, setPriceChange] = useState(0.0);
 
-  // ✅ BE에서 balance 가져오기
+  // ✅ (1) 현재 잔액 DB에서 불러오기
   useEffect(() => {
     if (isAuthed && user.memberNo) {
       axios
         .get(`/api/asset/${user.memberNo}`)
         .then((res) => {
           console.log("서버에서 불러온 balance:", res.data);
-          setBalance(res.data);
+          if (res.data) setBalance(res.data.balance ?? res.data ?? 0);
         })
-        .catch((err) => {
-          console.error("자산 불러오기 실패:", err);
-        });
+        .catch((err) => console.error("자산 불러오기 실패:", err));
     }
   }, [isAuthed, user.memberNo]);
 
-  // ✅ 금 시세 불러오기
+  // ✅ (2) 현재 보유 금(g) 불러오기
+  useEffect(() => {
+    if (isAuthed && user.memberNo) {
+      axios
+        .get(`/api/trade/owned/${user.memberNo}`)
+        .then((res) => {
+          if (res.data && res.data.ownedGold !== undefined) {
+            setOwnedGold(res.data.ownedGold);
+          }
+        })
+        .catch((err) => console.error("보유 금량 불러오기 실패:", err));
+    }
+  }, [isAuthed, user.memberNo]);
+
+  // ✅ (3) 금 시세 불러오기
   useEffect(() => {
     if (!selectedDate) return;
 
@@ -65,64 +79,68 @@ function Step3() {
       .catch((err) => console.error("❌ 금 시세 불러오기 실패:", err));
   }, [selectedDate]);
 
-  // ✅ 입력 상태 (문자열로 관리)
+  // ✅ 입력 상태
   const [buyAmount, setBuyAmount] = useState("");
   const [sellAmount, setSellAmount] = useState("");
 
   const buyNum = parseFloat(buyAmount) || 0;
   const sellNum = parseFloat(sellAmount) || 0;
-
   const buyValue = buyNum * goldPrice;
   const sellValue = sellNum * goldPrice;
   const expectedBalance = balance - buyValue + sellValue;
 
-  // ✅ 거래 버튼 로직
+  // ✅ 거래 버튼 클릭
   const handleTrade = async () => {
     if (buyNum < 0 || sellNum < 0) {
       alert("음수 값은 입력할 수 없습니다.");
       return;
     }
-
     if (buyValue > balance) {
       alert("보유 자산보다 많은 금액은 매수할 수 없습니다.");
       return;
     }
-
     if (sellNum > ownedGold) {
       alert(`보유 금(${ownedGold}g)보다 많이 매도할 수 없습니다.`);
       return;
     }
 
-    const newBalance = balance - buyValue + sellValue;
-    const newOwnedGold = ownedGold + buyNum - sellNum;
-
-    setBalance(newBalance);
-    setOwnedGold(newOwnedGold);
-
+    // 거래 데이터
     const tradeData = {
       memberNo: user.memberNo,
-      date: formattedDate,
-      buyAmount: buyNum,
-      sellAmount: sellNum,
-      buyValue,
-      sellValue,
-      balance: newBalance,
+      tradeType: buyNum > 0 ? "매수" : "매도",
       goldPrice,
-      priceChange,
-      ownedGold: newOwnedGold,
+      quantity: buyNum > 0 ? buyNum : sellNum,
+      currentBalance: balance,
+      predict: "예측없음",
     };
 
     console.log("=== 거래 버튼 클릭 ===");
     console.log("거래 데이터:", tradeData);
 
     try {
-      // ✅ 서버에 거래 데이터 저장 요청
       const res = await axios.post("/api/trade/record", tradeData);
+
       console.log("✅ 거래 저장 성공:", res.data);
+      const newBalanceFromServer = res.data.newBalance ?? balance;
+
+      // ✅ 서버 응답에 ownedGold 포함됨
+      const ownedGoldFromServer =
+        res.data.ownedGold !== undefined ? res.data.ownedGold : ownedGold;
+
+      // ✅ 상태 업데이트
+      setBalance(newBalanceFromServer);
+      setOwnedGold(ownedGoldFromServer);
+
+      // ✅ localStorage 업데이트
+      const updatedUser = { ...user, balance: newBalanceFromServer };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
       alert("거래가 성공적으로 저장되었습니다.");
 
-      // ✅ 결과 페이지로 이동
-      navigate("/simulation/result", { state: tradeData });
+      // ✅ 결과 페이지 이동
+      navigate("/simulation/result", {
+        state: { ...tradeData, newBalanceFromServer, ownedGoldFromServer },
+      });
     } catch (err) {
       console.error("❌ 거래 저장 실패:", err);
       alert("거래 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
@@ -164,7 +182,7 @@ function Step3() {
             </div>
           </div>
 
-          {/* 💰 금 계산기 */}
+          {/* 💰 금 시세 시뮬레이터 */}
           <div className="calc-box">
             <h2>금 시세 시뮬레이터</h2>
 
@@ -200,6 +218,7 @@ function Step3() {
               </div>
             </div>
 
+            {/* 보유 자산 변화 */}
             <div className="balance-box">
               <p>
                 💰 보유 자산 변동 예상:{" "}
@@ -212,6 +231,7 @@ function Step3() {
             </div>
           </div>
 
+          {/* 버튼 영역 */}
           <div className="btn-group">
             <button className="back-btn" onClick={() => navigate(-1)}>
               뒤로 가기
