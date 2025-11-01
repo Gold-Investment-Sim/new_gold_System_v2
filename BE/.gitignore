@@ -37,3 +37,14 @@ out/
 .vscode/
 # 민감한 정보를 담고 있으므로 Git 히스토리에서 제외
 /src/main/resources/application.properties
+
+# ==== 민감 파일 무시 ====
+src/main/resources/application.yml
+src/main/resources/application.properties
+.env
+
+# IDE, 빌드 폴더
+/.idea
+/.vscode
+/build
+/out
