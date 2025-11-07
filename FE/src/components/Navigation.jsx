@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import "./Navigation.css";
+import logoImg from '../assets/logo.png';
 
 function Navigation({ isAuthed, memberId, memberName, memberEmail, balance, onLogout }) {
   const [open, setOpen] = useState(false);
@@ -31,7 +32,9 @@ function Navigation({ isAuthed, memberId, memberName, memberEmail, balance, onLo
   return (
     <nav className="nav">
       <div className="nav-container">
-         <Link to="/" className="nav-logo" aria-label="홈으로">GoldSim</Link>
+         <Link to="/" className="nav-logo" aria-label="홈으로">
+             <img src={logoImg} alt="GoldSim " />Gold Simulation
+         </Link>
 
         <div className="nav-menu">
           <Link to="/simulation">투자 시뮬레이션</Link>
