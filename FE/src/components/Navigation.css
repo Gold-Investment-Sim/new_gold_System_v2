@@ -1,4 +1,6 @@
 /* src/components/Navigation.css */
+ .nav-logo img {
+  height: 50px;  width: auto;   vertical-align: middle; }
 .nav {
   background: #fff;
   border-bottom: 1px solid #eee;
