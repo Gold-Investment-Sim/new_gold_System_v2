@@ -118,37 +118,34 @@ function Step3() {
     console.log("=== 거래 버튼 클릭 ===");
     console.log("거래 데이터:", tradeData);
 
-      try {
-          const res = await axios.post("/api/trade/record", tradeData);
+    try {
+      const res = await axios.post("/api/trade/record", tradeData);
 
-          console.log("✅ 거래 저장 성공:", res.data);
-          const newBalanceFromServer = res.data.newBalance ?? balance;
-          const ownedGoldFromServer =
-              res.data.ownedGold !== undefined ? res.data.ownedGold : ownedGold;
+      console.log("✅ 거래 저장 성공:", res.data);
+      const newBalanceFromServer = res.data.newBalance ?? balance;
 
-          // ✅ (수정) 로컬스토리지 업데이트
-          const updatedUser = { ...user, balance: newBalanceFromServer };
-          localStorage.setItem("user", JSON.stringify(updatedUser));
+      // ✅ 서버 응답에 ownedGold 포함됨
+      const ownedGoldFromServer =
+        res.data.ownedGold !== undefined ? res.data.ownedGold : ownedGold;
 
-          // ✅ (수정) 상태 업데이트 (pnl 추가)
-          setBalance(newBalanceFromServer);
-          setOwnedGold(ownedGoldFromServer);
+      // ✅ 상태 업데이트
+      setBalance(newBalanceFromServer);
+      setOwnedGold(ownedGoldFromServer);
 
-          alert("거래가 성공적으로 저장되었습니다.");
+      // ✅ localStorage 업데이트
+      const updatedUser = { ...user, balance: newBalanceFromServer };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
-          // ✅ (수정) navigate로 이동 시 pnl을 포함한 모든 데이터를 state로 전달
-          navigate("/simulation/result", {
-              state: {
-                  ...tradeData, // memberNo, tradeType, goldPrice, quantity, tradeDate 등
-                  newBalanceFromServer: newBalanceFromServer,
-                  ownedGoldFromServer: ownedGoldFromServer,
-                  pnl: res.data.pnl, // <-- 🚨 이 부분이 누락되었습니다.
-              },
-          });
-      } catch (err) {
-          console.error("❌ 거래 저장 실패:", err);
-          alert("거래 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
-      }
+      alert("거래가 성공적으로 저장되었습니다.");
+
+      // ✅ 결과 페이지 이동
+      navigate("/simulation/result", {
+        state: { ...tradeData, newBalanceFromServer, ownedGoldFromServer },
+      });
+    } catch (err) {
+      console.error("❌ 거래 저장 실패:", err);
+      alert("거래 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
