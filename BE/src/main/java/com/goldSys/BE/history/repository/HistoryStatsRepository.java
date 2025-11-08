@@ -5,6 +5,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 
+/**
+ * 개발자 : 최승희
+ * 투자 이력 통계 조회 Repository
+ * 관련 엔티티
+ * 1. QuotesDaily : 10년치 일별 시세 데이터 테이블
+ * 2. TradeHistoryRow : 회원별 거래 내역(매수/매도)을 저장
+ * 사용 : 투자 통계 조회 API (/api/history/stats)
+ */
 @Repository
 public interface HistoryStatsRepository extends JpaRepository<com.goldSys.BE.history.entity.QuotesDaily, LocalDate> {
 
@@ -14,14 +22,17 @@ public interface HistoryStatsRepository extends JpaRepository<com.goldSys.BE.his
         long getWrong();
     }
 
+    /**
+     * 개발자 : 최승희
+     * 회원/기간/거래유형별 거래 통계를 집계하는 쿼리
+     */
     @Query(value = """
         SELECT
-          COUNT(*) AS total,  -- 기간 내 장 개장일 수
+          COUNT(*) AS total,
           COALESCE(SUM(CASE WHEN T.day_result =  1 THEN 1 ELSE 0 END), 0) AS correct,
           COALESCE(SUM(CASE WHEN T.day_result = -1 THEN 1 ELSE 0 END), 0) AS wrong
         FROM QUOTES_DAILY QD
         LEFT JOIN (
-          /* 하루 결과 압축: + 있으면 정답, - 있으면 오답, 아니면 0(미풀이) */
           SELECT
             st.TRADE_DATE,
             st.MEMBER_NO,

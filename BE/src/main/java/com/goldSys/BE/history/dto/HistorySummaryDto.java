@@ -3,7 +3,17 @@ package com.goldSys.BE.history.dto;
 
 import lombok.*;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+/**
+ * 개발자 : 최승희
+ * 투자 성과 요약 응답 DTO
+ * 구성 : 거래 횟수, 매수·매도 비율, 평균·최대·최소 수익률 등
+ * 사용 : 투자 성과 요약 조회 (/api/history/summary)
+ * 데이터 출처 : SIMULATION_TRADE(사용), SIMULATION_HISTORY(이제 미사용) 통계 결과
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class HistorySummaryDto {
     private long total;        // 총 거래 횟수
     private long buy;          // 매수 건수

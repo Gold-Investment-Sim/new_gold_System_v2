@@ -7,6 +7,13 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 
+/**
+ * 개발자 : 최승희
+ * 투자 성과 요약 조회 Repository
+ * 관련 엔티티
+ * TradeHistoryRow (simulation_trade 테이블)
+ * 사용 : 투자 성과 요약 조회 API (/api/history/summary)
+ */
 @Repository
 public interface HistorySummaryRepository extends JpaRepository<SimulationTrade, Long> {
 
