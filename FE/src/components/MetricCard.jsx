@@ -13,6 +13,14 @@ const toISO = (d) => {
   ).padStart(2, "0")}`;
 };
 
+const fmt = (dObj) => {
+    const d = new Date(dObj);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const D = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${D}`;
+};
+
 const KEYS = ["All", "7y", "5y", "3y", "1y", "6m", "3m", "1m", "15d"];
 const DAYS = {
   "15d": 15,
@@ -64,7 +72,7 @@ export default function MetricCard({
     axios
       .get("/api/lstm/series-all", {
         withCredentials: true,
-        params: { to: toISO(end) },
+        params: { to: fmt(end) },
         signal: ctrl.signal,
       })
       .then(({ data }) => {
@@ -113,8 +121,8 @@ export default function MetricCard({
         withCredentials: true,
         params: {
           metric: normMetric,
-          from: toISO(start),
-          to: toISO(end),
+          from: fmt(start),
+          to: fmt(end),
         },
         signal: ctrl.signal,
       })
