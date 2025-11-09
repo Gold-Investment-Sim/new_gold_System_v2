@@ -35,6 +35,7 @@ function Result() {
         quantity,             // 거래 수량(g)
         pnl,                  // 실현 손익률(%) (매도일 때만 의미 있음)
         newBalanceFromServer, // 거래 후 잔액
+        ownedGoldFromServer,
     } = state || {}; // state가 null일 경우를 대비한 기본값
 
     // --- 3. 파생 데이터 계산 ---
@@ -201,6 +202,13 @@ ${tradeDetails}
                         <div className="detail-row">
                             <span>거래 후 보유 자산</span>
                             <strong>{newBalanceFromServer.toLocaleString()} 원</strong>
+                        </div>
+
+                        <div className="detail-row">
+                            <span>거래 후 보유 금</span>
+                            <strong>
+                                {Number(ownedGoldFromServer ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 3 })} g
+                            </strong>
                         </div>
                     </div>
 
