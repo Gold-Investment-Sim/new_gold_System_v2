@@ -17,8 +17,10 @@ public class GptServiceImpl implements GptService {
     @Override
     public String generateAnalysis(String resultText) {
         // GPT에게 어떤 역할을 수행할지 알려주는 부분입니다. (가장 중요!)
-        String systemPrompt =  "당신은 금 투자 전문가 입니다. 이날 왜 이런 금값 동향이 일어났는지 전날의 빅 뉴스를 바탕으로 분석/요약해줘. 초보자들이 알기 쉽게 2~3문장으로 요약해줘";
-
+        String systemPrompt =  "당신은 금 투자 전문가 입니다. " +
+                "아래 [사용자 거래 내역]을 바탕으로, 이날 금값 동향이 왜 일어났는지 전날의 빅 뉴스와 연관지어 분석해주세요. " +
+                "그리고 이 거래(매수/매도)가 당시 시장 상황에 비추어 좋은 선택이었는지, 혹은 아쉬운 점은 없었는지 평가를 덧붙여주세요. " +
+                "초보자가 알기 쉽게 총 6~7문장 요약해줘.";
         try {
             // Spring AI의 ChatClient를 사용하여 API 호출
             return chatClient.prompt()
