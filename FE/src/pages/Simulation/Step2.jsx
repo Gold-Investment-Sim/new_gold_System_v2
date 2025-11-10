@@ -163,7 +163,6 @@ export default function Step2() {
           metric={active.metric}
           selectedDate={selectedDate}
           onClose={() => setActive(null)}
-          defaultUnit="1m"
         />
       )}
     </>

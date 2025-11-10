@@ -4,9 +4,9 @@
     --hd-height: 36px;
 
     /* 파이차트/결과 텍스트 공통 색 변수(따뜻한 계열) */
-    --color-correct: #fbc02d;
+    --color-correct: #d32f2f;
     /* 머스터드 옐로우 */
-    --color-wrong: #f57c00;
+    --color-wrong: #2f80ed;
     /* 웜 오렌지 */
     --color-unsolved: #b0bec5;
     /* 차분한 그레이 */
@@ -352,4 +352,29 @@
   font-size: 14px;
   font-weight: 600;
   color: #111827;
+}
+
+/* ===== 손익 분포 플레이스홀더 ===== */
+.hd-chart-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.hd-chart-placeholder-circle {
+    width: 220px;   /* 여기에서 크기 조절 */
+    height: 220px;
+    border-radius: 50%;
+    background: #e5e7eb;
+}
+
+.hd-chart-placeholder-text {
+    margin-top: 14px;
+    text-align: center;
+    line-height: 1.6;
 }

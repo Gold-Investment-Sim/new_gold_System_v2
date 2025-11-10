@@ -29,26 +29,12 @@ public interface HistoryStatsRepository extends JpaRepository<com.goldSys.BE.his
     @Query(value = """
         SELECT
           COUNT(*) AS total,
-          COALESCE(SUM(CASE WHEN T.day_result =  1 THEN 1 ELSE 0 END), 0) AS correct,
-          COALESCE(SUM(CASE WHEN T.day_result = -1 THEN 1 ELSE 0 END), 0) AS wrong
-        FROM QUOTES_DAILY QD
-        LEFT JOIN (
-          SELECT
-            st.TRADE_DATE,
-            st.MEMBER_NO,
-            CASE
-              WHEN SUM(CASE WHEN st.PNL > 0 THEN 1 ELSE 0 END) > 0 THEN  1
-              WHEN SUM(CASE WHEN st.PNL < 0 THEN 1 ELSE 0 END) > 0 THEN -1
-              ELSE 0
-            END AS day_result
-          FROM SIMULATION_TRADE st
-          WHERE st.MEMBER_NO = :memberNo
-            AND st.TRADE_DATE BETWEEN :from AND :to
-            AND (:type IS NULL OR :type = '' OR st.TRADE_TYPE = :type)
-          GROUP BY st.MEMBER_NO, st.TRADE_DATE
-        ) T
-          ON T.TRADE_DATE = QD.DATE AND T.MEMBER_NO = :memberNo
-        WHERE QD.DATE BETWEEN :from AND :to
+          COALESCE(SUM(CASE WHEN st.PNL > 0 THEN 1 ELSE 0 END), 0) AS correct,
+          COALESCE(SUM(CASE WHEN st.PNL < 0 THEN 1 ELSE 0 END), 0) AS wrong
+        FROM SIMULATION_TRADE st
+        WHERE st.MEMBER_NO = :memberNo
+          AND st.TRADE_DATE BETWEEN :from AND :to
+          AND (:type IS NULL OR :type = '' OR st.TRADE_TYPE = :type)
         """, nativeQuery = true)
     StatsAgg aggregateStats(@Param("memberNo") Long memberNo,
                             @Param("from") LocalDate from,

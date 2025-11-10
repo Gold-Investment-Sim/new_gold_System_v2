@@ -76,22 +76,72 @@ public class LstmServiceImpl implements LstmService {
     @Override
     public List<Map<String, Object>> getPredAll(String to) {
         LocalDate t = LocalDate.parse(to);
-        LocalDate startWide = t.minusYears(12); // 10년 + 여유
-        List<QuotesDaily> all = repo.findByDateBetweenOrderByDateAsc(startWide, t);
-        if (all.size() <= WINDOW) return List.of();
 
+        // to 포함 과거 데이터 조회 (여유 10년; 필요하면 조정)
+        LocalDate startWide = t.minusYears(10);
+        List<QuotesDaily> all = repo.findByDateBetweenOrderByDateAsc(startWide, t);
+        if (all.size() <= WINDOW) {
+            log.warn("[LSTM] getPredAll - not enough rows: {}", all.size());
+            return Collections.emptyList();
+        }
+
+        // LSTM 입력
         List<RowDto> payload = toRows(all);
+        int maxSeq = payload.size() - WINDOW; // 이론상 예측 개수
+        if (maxSeq <= 0) {
+            log.warn("[LSTM] getPredAll - maxSeq<=0, payload={}", payload.size());
+            return Collections.emptyList();
+        }
+
         PredictReq req = PredictReq.builder()
                 .rows(payload)
-                .returnLastN(payload.size() - WINDOW)
+                .returnLastN(maxSeq)   // 전체 시퀀스 예측
                 .nextDay(false)
                 .build();
 
         PredictRes res = callFastApi(req);
-        if (res == null) return List.of();
+        if (res == null || res.getYPred() == null || res.getYPred().isEmpty()) {
+            log.warn("[LSTM] getPredAll - empty PredictRes");
+            return Collections.emptyList();
+        }
 
-        return zip(res);
+        List<Double> yPred = res.getYPred();
+        int n = all.size();
+        int m = yPred.size();
+
+        // 예측 개수가 기대보다 많으면 뒤에서 maxSeq개만 사용
+        if (m > maxSeq) {
+            log.warn("[LSTM] getPredAll - yPred size({}) > maxSeq({}), trimming tail", m, maxSeq);
+            yPred = yPred.subList(m - maxSeq, m);
+            m = maxSeq;
+        }
+
+        // all[n-m..n-1] 에 yPred[0..m-1] 매핑
+        int startIdx = n - m;
+        if (startIdx < 0) {
+            log.error("[LSTM] getPredAll - negative startIdx. n={}, m={}", n, m);
+            startIdx = 0;
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>(m);
+        for (int i = 0; i < m; i++) {
+            LocalDate date = all.get(startIdx + i).getDate();
+            Double val = yPred.get(i);
+
+            Map<String, Object> row = new HashMap<>(2);
+            row.put("date", date.toString());
+            row.put("value", val);
+            result.add(row);
+        }
+
+        LocalDate first = all.get(startIdx).getDate();
+        LocalDate last = all.get(startIdx + m - 1).getDate();
+        log.info("[LSTM] getPredAll mapped: inputRows={}, preds={}, first={}, last={}",
+                n, m, first, last);
+
+        return result;
     }
+
 
     /* ================== 내부 헬퍼 메서드 ================== */
 

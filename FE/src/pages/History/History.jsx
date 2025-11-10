@@ -7,8 +7,6 @@ import InfoTooltip from "../../components/InfoTooltip";
 const RANGE_MIN = "2023-01-01";
 const RANGE_MAX = "2024-12-31";
 const LEGEND_W = 160;
-
-// 파이와 범례 고정 순서: 손익 → 손실
 const PIE_ORDER = ["correct", "wrong"];
 
 const clampDate = (v) => {
@@ -30,7 +28,10 @@ const fmt = (n, d = 1) =>
 const fmtSign = (n, d = 1) => {
   if (n === null || n === undefined || isNaN(n)) return "-";
   const v = Number(n);
-  const body = Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+  const body = Math.abs(v).toLocaleString(undefined, {
+    minimumFractionDigits: d,
+    maximumFractionDigits: d,
+  });
   if (v > 0) return `▲ +${body}`;
   if (v < 0) return `▼ -${body}`;
   return "0.0";
@@ -39,12 +40,20 @@ const fmtSign = (n, d = 1) => {
 const fmtPnl = (v) => fmtSign(v, 1);
 
 const dash = (v, d = 0) =>
-  v == null || v === "" ? "-" : Number(v).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+  v == null || v === ""
+    ? "-"
+    : Number(v).toLocaleString(undefined, {
+      minimumFractionDigits: d,
+      maximumFractionDigits: d,
+    });
 
 const won = (v) =>
   v == null || isNaN(v)
     ? "-"
-    : "₩" + Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    : "₩" +
+    Number(v).toLocaleString(undefined, {
+      maximumFractionDigits: 0,
+    });
 
 async function getHistory(filters) {
   const url = `http://localhost:8080/api/history?${qs(filters)}`;
@@ -52,25 +61,34 @@ async function getHistory(filters) {
   if (!res.ok) throw new Error("시작일과 종료일을 다시 설정해주세요.");
   return res.json();
 }
+
 async function getStats(filters) {
-  const url = `http://localhost:8080/api/history/stats?${qs({ from: filters.from, to: filters.to, type: filters.type })}`;
+  const url = `http://localhost:8080/api/history/stats?${qs({
+    from: filters.from,
+    to: filters.to,
+    type: filters.type,
+  })}`;
   const res = await fetch(url, { credentials: "include" });
   if (!res.ok) throw new Error(`stats:${res.status}`);
   return res.json();
 }
+
 async function getSummaryDto(filters) {
-  const url = `http://localhost:8080/api/history/summary?${qs({ from: filters.from, to: filters.to })}`;
+  const url = `http://localhost:8080/api/history/summary?${qs({
+    from: filters.from,
+    to: filters.to,
+  })}`;
   const res = await fetch(url, { credentials: "include" });
   if (!res.ok) throw new Error(`summary:${res.status}`);
   return res.json();
 }
 
-// 범례 컴포넌트: 파이 순서대로 정렬하여 표시
 const LegendWithPercent = ({ payload }) => {
   const sorted = [...(payload ?? [])].sort(
     (a, b) => PIE_ORDER.indexOf(a?.payload?.key) - PIE_ORDER.indexOf(b?.payload?.key)
   );
   const total = sorted.reduce((s, p) => s + (p?.payload?.value ?? 0), 0);
+
   return (
     <ul style={{ listStyle: "none", padding: 0, margin: 0, width: LEGEND_W }}>
       {sorted.map((e, i) => {
@@ -93,7 +111,7 @@ export default function HistoryDashboard() {
   const [filters, setFilters] = useState({
     from: RANGE_MIN,
     to: RANGE_MAX,
-    type: "",               // "" = 전체(=매수+매도)
+    type: "",
     sort: "date,desc",
     page: 1,
     size: 20,
@@ -157,14 +175,22 @@ export default function HistoryDashboard() {
       } catch {
         if (!alive) return;
         setSummary({
-          total: 0, buy: 0, sell: 0,
-          avgAmount: 0, totalPnl: 0, avgPnl: 0, maxPnl: 0, minPnl: 0
+          total: 0,
+          buy: 0,
+          sell: 0,
+          avgAmount: 0,
+          totalPnl: 0,
+          avgPnl: 0,
+          maxPnl: 0,
+          minPnl: 0,
         });
       } finally {
         if (alive) setSummaryLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [filters.from, filters.to]);
 
   const accuracyPct = useMemo(
@@ -172,15 +198,16 @@ export default function HistoryDashboard() {
     [stats]
   );
 
-  // 파이 데이터: 항상 '미풀이' 제외. 손익 → 손실 순서 고정.
-  const pieData = useMemo(() => {
-    return [
-      { name: "손익",  value: stats.correct, key: "correct" },
-      { name: "손실",  value: stats.wrong,   key: "wrong"   },
-    ]
-      .filter(d => d.value > 0)
-      .sort((a, b) => PIE_ORDER.indexOf(a.key) - PIE_ORDER.indexOf(b.key));
-  }, [stats]);
+  const pieData = useMemo(
+    () =>
+      [
+        { name: "손익", value: stats.correct, key: "correct" },
+        { name: "손실", value: stats.wrong, key: "wrong" },
+      ]
+        .filter((d) => d.value > 0)
+        .sort((a, b) => PIE_ORDER.indexOf(a.key) - PIE_ORDER.indexOf(b.key)),
+    [stats]
+  );
 
   const COLOR_VAR = {
     correct: "var(--color-correct)",
@@ -189,6 +216,8 @@ export default function HistoryDashboard() {
 
   const setPage = (p) => setFilters((f) => ({ ...f, page: p }));
   const setSize = (s) => setFilters((f) => ({ ...f, size: s, page: 1 }));
+
+  const onlyBuyOrNoData = filters.type === "매수" || pieData.length === 0;
 
   return (
     <div className="hd hd-page">
@@ -205,7 +234,7 @@ export default function HistoryDashboard() {
                 value={filters.from || ""}
                 onChange={(e) => {
                   const v = clampDate(e.target.value);
-                  setFilters(f => {
+                  setFilters((f) => {
                     const from = v;
                     const to = f.to && f.to < from ? from : f.to;
                     return { ...f, from, to, page: 1 };
@@ -222,7 +251,7 @@ export default function HistoryDashboard() {
                 value={filters.to || ""}
                 onChange={(e) => {
                   const v = clampDate(e.target.value);
-                  setFilters(f => {
+                  setFilters((f) => {
                     const to = v;
                     const from = f.from && to < f.from ? to : f.from;
                     return { ...f, from, to, page: 1 };
@@ -234,7 +263,9 @@ export default function HistoryDashboard() {
               <label className="hd-label">타입</label>
               <select
                 value={filters.type || ""}
-                onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value, page: 1 }))}
+                onChange={(e) =>
+                  setFilters((f) => ({ ...f, type: e.target.value, page: 1 }))
+                }
               >
                 <option value="">전체</option>
                 <option value="매수">매수</option>
@@ -247,12 +278,23 @@ export default function HistoryDashboard() {
             <div className="hd-card-header">
               <div>이력</div>
               <div className="hd-toolbar">
-                <select value={filters.size} onChange={(e) => setSize(Number(e.target.value))}>
+                <select
+                  value={filters.size}
+                  onChange={(e) => setSize(Number(e.target.value))}
+                >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
                   <option value={50}>50</option>
                 </select>
-                <select value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}>
+                <select
+                  value={filters.sort}
+                  onChange={(e) =>
+                    setFilters((f) => ({
+                      ...f,
+                      sort: e.target.value,
+                    }))
+                  }
+                >
                   <option value="date,desc">날짜 최신순</option>
                   <option value="date,asc">날짜 과거순</option>
                 </select>
@@ -280,22 +322,35 @@ export default function HistoryDashboard() {
                       <th>거래 수량(g)</th>
                       <th>거래 금액(원)</th>
                       <th className="right">
-                        <div style={{ display: "inline-flex", alignItems: "center" }}>
-                          <InfoTooltip title="수익률(%)" />
-                          <span>수익률(%)</span>
+                        <span>수익률(%)</span>
+                      </th>
+                      <th>
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                          }}
+                        >
+                          <span>손익/손실</span>
+                          <InfoTooltip title="수익률표시" />
                         </div>
                       </th>
-                      <th>손익/손실</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="hd-empty-cell">불러오는 중</td>
+                        <td colSpan={7} className="hd-empty-cell">
+                          불러오는 중
+                        </td>
                       </tr>
                     ) : list.items.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="hd-empty-cell">데이터 없음</td>
+                        <td colSpan={7} className="hd-empty-cell">
+                          데이터 없음
+                        </td>
                       </tr>
                     ) : (
                       list.items.map((r) => (
@@ -306,16 +361,35 @@ export default function HistoryDashboard() {
                           <td>{dash(r.quantity, 3)}</td>
                           <td>{dash(r.amount, 0)}</td>
                           <td className="right">
-                            {r.pnl == null ? "-" : (
-                              <span className={"pnl-badge " + (r.pnl > 0 ? "pos" : r.pnl < 0 ? "neg" : "zero")}>
+                            {r.pnl == null ? (
+                              "-"
+                            ) : (
+                              <span
+                                className={
+                                  "pnl-badge " +
+                                  (r.pnl > 0
+                                    ? "pos"
+                                    : r.pnl < 0
+                                      ? "neg"
+                                      : "zero")
+                                }
+                              >
                                 {fmtPnl(r.pnl)}
                               </span>
                             )}
                           </td>
                           <td>
-                            {r.result === "손익" && <span className="hd-result-correct">손익</span>}
-                            {r.result === "손실" && <span className="hd-result-wrong">손실</span>}
-                            {r.result === "미풀이" && <span className="hd-result-unsolved">미풀이</span>}
+                            {r.result === "손익" && (
+                              <span className="hd-result-correct">
+                                손익
+                              </span>
+                            )}
+                            {r.result === "손실" && (
+                              <span className="hd-result-wrong">
+                                손실
+                              </span>
+                            )}
+                            {r.result === "미풀이" && <span>-</span>}
                           </td>
                         </tr>
                       ))
@@ -326,25 +400,63 @@ export default function HistoryDashboard() {
 
               <div className="hd-row hd-pagination" style={{ marginTop: 12 }}>
                 <div className="hd-muted">
-                  총 {list.total}건 • {list.page}/{Math.max(1, Math.ceil(list.total / list.size))} 페이지
+                  총 {list.total}건 • {list.page}/
+                  {Math.max(1, Math.ceil(list.total / list.size))} 페이지
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <button className="hd-btn" onClick={() => setPage(1)} disabled={list.page <= 1}>처음</button>
-                  <button className="hd-btn" onClick={() => setPage(list.page - 1)} disabled={list.page <= 1}>이전</button>
+                  <button
+                    className="hd-btn"
+                    onClick={() => setPage(1)}
+                    disabled={list.page <= 1}
+                  >
+                    처음
+                  </button>
+                  <button
+                    className="hd-btn"
+                    onClick={() => setPage(list.page - 1)}
+                    disabled={list.page <= 1}
+                  >
+                    이전
+                  </button>
                   <button
                     className="hd-btn"
                     onClick={() => setPage(list.page + 1)}
-                    disabled={list.page >= Math.ceil(list.total / list.size)}
-                  >다음</button>
+                    disabled={
+                      list.page >= Math.ceil(list.total / list.size)
+                    }
+                  >
+                    다음
+                  </button>
                   <button
                     className="hd-btn"
-                    onClick={() => setPage(Math.max(1, Math.ceil(list.total / list.size)))}
-                    disabled={list.page >= Math.ceil(list.total / list.size)}
-                  >마지막</button>
+                    onClick={() =>
+                      setPage(
+                        Math.max(
+                          1,
+                          Math.ceil(list.total / list.size)
+                        )
+                      )
+                    }
+                    disabled={
+                      list.page >= Math.ceil(list.total / list.size)
+                    }
+                  >
+                    마지막
+                  </button>
                 </div>
               </div>
 
-              {err && <div style={{ marginTop: 8, color: "#dc2626", fontSize: 13 }}>{err}</div>}
+              {err && (
+                <div
+                  style={{
+                    marginTop: 8,
+                    color: "#dc2626",
+                    fontSize: 13,
+                  }}
+                >
+                  {err}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -354,43 +466,63 @@ export default function HistoryDashboard() {
           <div className="hd-card chart-card">
             <div className="hd-card-header">
               <div>손익/손실 분포</div>
-              <span className="hd-small">성과율 {fmt(accuracyPct)}%</span>
+              <span className="hd-small">
+                성과율 {filters.type === "매수" ? "0.0" : fmt(accuracyPct)}%
+              </span>
             </div>
             <div className="hd-card-body">
               <div className="chart-wrapper">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      dataKey="value"
-                      data={pieData}
-                      innerRadius={0}
-                      outerRadius={120}
-                      paddingAngle={3}
-                      label={false}
-                      labelLine={false}
-                      stroke="none"
-                      cx="45%"
-                    >
-                      {pieData.map((entry) => (
-                        <Cell key={`c-${entry.key}`} fill={COLOR_VAR[entry.key]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(v) => `${v}건`} />
-                    <Legend
-                      layout="vertical"
-                      align="right"
-                      verticalAlign="middle"
-                      wrapperStyle={{ width: LEGEND_W }}
-                      content={<LegendWithPercent />}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-
-                {/* 미풀이 제외 안내문(원하면 삭제) */}
-                {stats.unsolved > 0 && (
-                  <div className="hd-muted" style={{ marginTop: 8, fontSize: 12 }}>
-                    미풀이 {stats.unsolved}건은 차트에서 제외됨
+                {onlyBuyOrNoData ? (
+                  <div className="hd-chart-placeholder">
+                    <div className="hd-chart-placeholder-circle" />
+                    <p className="hd-chart-placeholder-text">
+                      매도 체결 시점에만 손익 분포를 계산할 수 있습니다.
+                      <br />
+                      현재 조건에서는 표시할 손익 데이터가 없습니다.
+                    </p>
                   </div>
+                ) : (
+                  <>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          dataKey="value"
+                          data={pieData}
+                          innerRadius={0}
+                          outerRadius={120}
+                          paddingAngle={3}
+                          label={false}
+                          labelLine={false}
+                          stroke="none"
+                          cx="45%"
+                        >
+                          {pieData.map((entry) => (
+                            <Cell
+                              key={`c-${entry.key}`}
+                              fill={COLOR_VAR[entry.key]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(v) => `${v}건`} />
+                        <Legend
+                          layout="vertical"
+                          align="right"
+                          verticalAlign="middle"
+                          wrapperStyle={{ width: LEGEND_W }}
+                          content={<LegendWithPercent />}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+
+                    {stats.unsolved > 0 && (
+                      <div
+                        className="hd-muted"
+                        style={{ marginTop: 8, fontSize: 12 }}
+                      >
+                        미풀이 {stats.unsolved}건은 차트에서 제외됨
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -419,29 +551,58 @@ export default function HistoryDashboard() {
                     alignItems: "center",
                   }}
                 >
-                  <KPI title="총 거래 횟수" value={`${summary.total ?? 0}건`} />
-                  <KPI title="매수/매도 비율" value={`${summary.buy ?? 0} / ${summary.sell ?? 0}`} hint="" />
-                  <KPI title="평균 거래 금액" value={won(summary.avgAmount)} />
-                  <KPI title="전체 손익" value={`${fmtSign(summary.totalPnl)}%`.replace("  ", " ")} />
+                  <KPI
+                    title="총 거래 횟수"
+                    value={`${summary.total ?? 0}건`}
+                  />
+                  <KPI
+                    title="매수/매도 비율"
+                    value={`${summary.buy ?? 0} / ${summary.sell ?? 0
+                      }`}
+                    hint=""
+                  />
+                  <KPI
+                    title="평균 거래 금액"
+                    value={won(summary.avgAmount)}
+                  />
+                  <KPI
+                    title="전체 손익"
+                    value={`${fmtSign(summary.totalPnl)}%`.replace(
+                      "  ",
+                      " "
+                    )}
+                  />
                   <KPI
                     title="평균 수익률"
                     value={
                       (summary.avgPnl ?? 0) === 0
                         ? "0.0%"
                         : (summary.avgPnl ?? 0) > 0
-                        ? `+${fmt(summary.avgPnl ?? 0, 1)}%`
-                        : `${fmt(summary.avgPnl ?? 0, 1)}%`
+                          ? `+${fmt(
+                            summary.avgPnl ?? 0,
+                            1
+                          )}%`
+                          : `${fmt(
+                            summary.avgPnl ?? 0,
+                            1
+                          )}%`
                     }
                   />
                   <KPI
                     title="최대 이익 / 손실"
-                    value={`${(summary.maxPnl ?? 0) > 0 ? "+" : ""}${fmt(summary.maxPnl ?? 0, 1)}% / ${fmt(summary.minPnl ?? 0, 1)}%`}
+                    value={`${(summary.maxPnl ?? 0) > 0 ? "+" : ""
+                      }${fmt(
+                        summary.maxPnl ?? 0,
+                        1
+                      )}% / ${fmt(
+                        summary.minPnl ?? 0,
+                        1
+                      )}%`}
                   />
                 </div>
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>

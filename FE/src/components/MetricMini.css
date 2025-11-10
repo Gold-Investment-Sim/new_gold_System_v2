@@ -52,6 +52,14 @@
   padding: 6px 10px;
 }
 
+.metric-body.mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+}
+
+
 /* =========================
    ⚙️ 공통 로딩 스타일 (회색)
    ========================= */
@@ -60,6 +68,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100%;
   width: 100%;
 }
 
@@ -71,7 +80,7 @@
   height: 320px;
 }
 
-/* ⚙️ 작고 느린 회색 로딩 */
+/* 작고 느린 회색 로딩 */
 .mini .spinner {
   width: 15px;
   height: 15px;
@@ -79,6 +88,8 @@
   border-top-color: rgba(0, 0, 0, 0.55);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+    justify-content: center;
+
 }
 
 /* 회전 애니메이션 */
