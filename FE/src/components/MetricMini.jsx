@@ -12,15 +12,17 @@ import {
 import "./MetricMini.css";
 import InfoTooltip from "./InfoTooltip";
 
+// API 파라미터용 YYYY-MM-DD (시간은 12:00 고정)
 const toISO = (d) => {
   const x = new Date(d);
-  x.setHours(12, 0, 0, 0); // API 파라미터용
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(
-    x.getDate()
-  ).padStart(2, "0")}`;
+  x.setHours(12, 0, 0, 0);
+  const y = x.getFullYear();
+  const m = String(x.getMonth() + 1).padStart(2, "0");
+  const D = String(x.getDate()).padStart(2, "0");
+  return `${y}-${m}-${D}`;
 };
 
-// 날짜만 비교용: 입력이 Date든 문자열이든 YYYY-MM-DD로 통일
+// 날짜 비교용: Date | string → YYYY-MM-DD
 const toISODateOnly = (v) => {
   if (!v) return "";
   if (typeof v === "string") return v.slice(0, 10);
@@ -40,12 +42,14 @@ export default function MetricMini({
   const fire = useMemo(() => onClick || onExpand, [onClick, onExpand]);
   const payload = useMemo(() => ({ metric, title }), [metric, title]);
 
+  // gold_close → BE 표준 컬럼명
   const normMetric = useMemo(
     () => (metric === "gold_close" ? "krw_g_close" : metric),
     [metric]
   );
   const isPred = normMetric === "pred_close";
 
+  // 단위 자동 설정
   const unit = useMemo(() => {
     if (title.includes("환율")) return "원/USD";
     if (title.includes("금")) return "원/g";
@@ -61,22 +65,25 @@ export default function MetricMini({
     setRows([]);
 
     const endDate = new Date(selectedDate);
-    const endISO = toISODateOnly(endDate);
-
-    // 3년 치
     const periodDays = 1095;
+
     const startDate = new Date(endDate);
     startDate.setDate(startDate.getDate() - periodDays);
-    const startISO = toISODateOnly(startDate);
 
     const url = isPred ? "/api/lstm/series-all" : "/api/metrics/series";
+
+    // ✅ 여기 부분 문법 수정
     const params = isPred
-      ? { to: toISO(endDate) } // 전체 예측 받아서 아래에서 3년만 자름
+      ? { to: toISO(endDate) } // LSTM: to 기준 전체 받아옴
       : {
+          // 일반 지표: 3년 구간 요청
           metric: normMetric,
           from: toISO(startDate),
           to: toISO(endDate),
         };
+
+    const startTime = startDate.getTime();
+    const endTime = endDate.getTime();
 
     const ctrl = new AbortController();
 
@@ -96,15 +103,15 @@ export default function MetricMini({
               new Date(a.date).getTime() - new Date(b.date).getTime()
           )
           .map((v, i) => ({
-            x: v.date ?? i, // 문자열 날짜 유지
+            x: v.date ?? i,
             y: Number(v.value),
           }));
 
+        // 예측 데이터는 받은 전체 중 3년 구간만 필터
         if (isPred) {
-          // 예측은 series-all 결과 중 3년 구간만 문자열 비교로 필터
           sorted = sorted.filter((p) => {
-            const d = toISODateOnly(p.x);
-            return d >= startISO && d <= endISO;
+            const t = new Date(p.x).getTime();
+            return t >= startTime && t <= endTime;
           });
         }
 
@@ -115,8 +122,12 @@ export default function MetricMini({
 
         setRows(reduced);
       })
-      .catch(() => setRows([]))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        setRows([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
     return () => ctrl.abort();
   }, [selectedDate, normMetric, isPred]);
