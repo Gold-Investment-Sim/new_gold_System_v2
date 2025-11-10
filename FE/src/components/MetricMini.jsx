@@ -5,14 +5,13 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "rec
 import "./MetricMini.css";
 import InfoTooltip from "./InfoTooltip";
 
-const toISO = (d) => {
-  const x = new Date(d);
-  x.setHours(12, 0, 0, 0);
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(
-    x.getDate()
-  ).padStart(2, "0")}`;
+const fmt = (dObj) => {
+    const d = new Date(dObj);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const D = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${D}`;
 };
-
 export default function MetricMini({ title, metric, selectedDate, onClick, onExpand }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,9 +47,9 @@ export default function MetricMini({ title, metric, selectedDate, onClick, onExp
     const url = isPred ? "/api/lstm/series-all" : "/api/metrics/series";
     const params = isPred
       // LSTM: to 기준 전체 받아온 뒤, 아래에서 3년 구간만 필터
-      ? { to: toISO(end) }
+      ? { to: fmt(end) }
       // 일반 지표: 3년(from) ~ 선택일(to) 범위 요청
-      : { metric: normMetric, from: toISO(start), to: toISO(end) };
+      : { metric: normMetric, from: fmt(start), to:fmt(end) };
 
     const ctrl = new AbortController();
 
