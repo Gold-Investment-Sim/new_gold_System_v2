@@ -5,6 +5,14 @@ import "./Result.css";
 import { useState, useEffect } from "react"; // useEffect 추가
 import axios from "axios";
 
+const fmtApiDate = (dObj) => {
+    const d = new Date(dObj);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const D = String(d.getDate()).padStart(2, "0");
+    return `${y}${m}${D}`;
+};
+
 function Result() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -27,6 +35,7 @@ function Result() {
         quantity,             // 거래 수량(g)
         pnl,                  // 실현 손익률(%) (매도일 때만 의미 있음)
         newBalanceFromServer, // 거래 후 잔액
+        ownedGoldFromServer,
     } = state || {}; // state가 null일 경우를 대비한 기본값
 
     // --- 3. 파생 데이터 계산 ---
@@ -42,14 +51,34 @@ function Result() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisError, setAnalysisError] = useState("");
 
-    const handleAnalysisClick = () => {
+    const handleAnalysisClick = async () => { //
         if (isAnalyzing || !state) return; // state 없으면 실행 방지
         setIsAnalyzing(true);
         setAnalysis("");
         setAnalysisError("");
 
-        // --- 4. AI 분석용 텍스트를 실제 데이터로 구성 ---
-        const resultText = `
+        let newsHeadlines = "전날 뉴스를 불러오지 못했습니다."; //
+
+        try {
+            //
+            const apiDate = fmtApiDate(tradeDate);
+            const newsRes = await axios.get(`http://localhost:8080/api/news/${apiDate}`, { withCredentials: true });
+            const articles = newsRes.data ?? [];
+
+            if (articles.length > 0) {
+                //
+                newsHeadlines = articles.map(a => `- ${a.articleTitle}`).join("\n");
+            } else {
+                newsHeadlines = "관련 뉴스가 없습니다.";
+            }
+
+        } catch (e) {
+            console.error("AI 분석용 뉴스 로딩 실패:", e);
+            newsHeadlines = "뉴스를 불러오는 중 오류가 발생했습니다.";
+        }
+
+        // --- 4. AI
+        const tradeDetails = `
       - 거래 날짜: ${formattedDate}
       - 거래 타입: ${tradeType}
       - 체결 당시 금 시세: ${goldPrice?.toLocaleString()} 원/g
@@ -57,8 +86,18 @@ function Result() {
       - 총 거래 금액: ${totalAmount.toLocaleString()} 원
       ${isSellTrade ? `- 실현 손익률(ROI): ${pnl?.toFixed(2)}%` : ''}
       - 거래 후 보유 자산: ${newBalanceFromServer?.toLocaleString()} 원
-    `;
+        `;
 
+        //
+        const resultText = `
+[오늘의 빅 뉴스]:
+${newsHeadlines}
+
+[사용자 거래 내역]:
+${tradeDetails}
+        `;
+
+        //
         axios.post("http://localhost:8080/api/gpt/analyze", { resultText })
             .then(response => {
                 setAnalysis(response.data.analysis);
@@ -163,6 +202,13 @@ function Result() {
                         <div className="detail-row">
                             <span>거래 후 보유 자산</span>
                             <strong>{newBalanceFromServer.toLocaleString()} 원</strong>
+                        </div>
+
+                        <div className="detail-row">
+                            <span>거래 후 보유 금</span>
+                            <strong>
+                                {Number(ownedGoldFromServer ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 3 })} g
+                            </strong>
                         </div>
                     </div>
 

@@ -135,8 +135,8 @@ export default function MetricCard({
         withCredentials: true,
         params: {
           metric: normMetric,
-          from: toISO(start),
-          to: toISO(end),
+          from: fmt(start),
+          to: fmt(end),
         },
         signal: ctrl.signal,
       })
