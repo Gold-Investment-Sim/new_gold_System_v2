@@ -1,24 +1,30 @@
 // src/components/MetricCard.jsx
 import { useEffect, useState, useMemo } from "react";
-import { ResponsiveContainer, LineChart, Line, Tooltip, CartesianGrid, XAxis } from "recharts";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Tooltip,
+  CartesianGrid,
+  XAxis,
+} from "recharts";
 import axios from "axios";
 import InfoTooltip from "./InfoTooltip";
 import "./MetricCard.css";
 
 const toISO = (d) => {
   const x = new Date(d);
-  x.setHours(12, 0, 0, 0);
+  x.setHours(12, 0, 0, 0); // TZ 영향 줄이기 위해 12시 고정
   return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(
     x.getDate()
   ).padStart(2, "0")}`;
 };
 
-const fmt = (dObj) => {
-    const d = new Date(dObj);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const D = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${D}`;
+// 날짜값을 YYYY-MM-DD 문자열로 정규화 (Date/문자 둘 다 허용)
+const toISODateOnly = (v) => {
+  if (!v) return "";
+  if (typeof v === "string") return v.slice(0, 10);
+  return toISO(v);
 };
 
 const KEYS = ["All", "7y", "5y", "3y", "1y", "6m", "3m", "1m", "15d"];
@@ -38,18 +44,24 @@ export default function MetricCard({
   metric,
   selectedDate,
   onClose,
-  defaultUnit = "1m",
+  defaultUnit = "1y", // 기본 1년
 }) {
-  const [unit, setUnit] = useState(defaultUnit);
-  const [data, setData] = useState([]);
-  const [allData, setAllData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const normMetric = useMemo(
     () => (metric === "gold_close" ? "krw_g_close" : metric),
     [metric]
   );
   const isPred = normMetric === "pred_close";
+
+  // LSTM이면 항상 1y로 시작, 아니면 props 기본값
+  const [unit, setUnit] = useState(isPred ? "1y" : defaultUnit);
+  const [data, setData] = useState([]);
+  const [allData, setAllData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // metric 변경 시 unit 재조정
+  useEffect(() => {
+    setUnit(isPred ? "1y" : defaultUnit);
+  }, [isPred, defaultUnit]);
 
   const ulabel = useMemo(() => {
     if (title.includes("환율")) return "원/USD";
@@ -59,29 +71,32 @@ export default function MetricCard({
     return "";
   }, [title]);
 
-  // LSTM 전체 구간 로드 (selectedDate 기준)
+  // ===== LSTM 전체 구간 로드 =====
   useEffect(() => {
     if (!selectedDate || !isPred) return;
 
     setLoading(true);
     setAllData([]);
 
-    const end = new Date(selectedDate);
+    const endISO = toISO(selectedDate);
     const ctrl = new AbortController();
 
     axios
       .get("/api/lstm/series-all", {
         withCredentials: true,
-        params: { to: fmt(end) },
+        params: { to: endISO },
         signal: ctrl.signal,
       })
       .then(({ data }) => {
         const rows = Array.isArray(data) ? data : [];
         const sorted = rows
           .filter((v) => v?.date && v?.value != null)
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .sort(
+            (a, b) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime()
+          )
           .map((r, i) => ({
-            x: r.date ?? i,
+            x: r.date ?? i, // 문자열 날짜 그대로 사용
             y: Number(r.value),
           }));
         setAllData(sorted);
@@ -92,7 +107,7 @@ export default function MetricCard({
     return () => ctrl.abort();
   }, [selectedDate, isPred]);
 
-  // 일반 지표: 선택한 날짜 기준 범위 로드
+  // ===== 일반 지표: 선택일 기준 범위 로드 =====
   useEffect(() => {
     if (!selectedDate || isPred) return;
 
@@ -104,7 +119,6 @@ export default function MetricCard({
     const k = unit.toLowerCase();
 
     if (k === "all") {
-      // 임의로 10년. 필요시 서버쪽 전체 응답 사용 가능.
       start.setFullYear(end.getFullYear() - 10);
     } else if (k.endsWith("y")) {
       const y = parseInt(k.replace("y", ""), 10);
@@ -130,7 +144,10 @@ export default function MetricCard({
         const rows = Array.isArray(data) ? data : [];
         const sorted = rows
           .filter((v) => v?.date && v?.value != null)
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .sort(
+            (a, b) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime()
+          )
           .map((r, i) => ({
             x: r.date ?? i,
             y: Number(r.value),
@@ -143,33 +160,35 @@ export default function MetricCard({
     return () => ctrl.abort();
   }, [normMetric, selectedDate, unit, isPred]);
 
-  // LSTM: unit에 따라 selectedDate 기준으로 슬라이스
+  // ===== LSTM: unit 기준 슬라이스 (문자열 날짜 비교로 off-by-one 방지) =====
   const sliced = useMemo(() => {
     if (!isPred) return data;
     if (!allData.length) return [];
 
-    const end = selectedDate
-      ? new Date(selectedDate)
-      : new Date(allData[allData.length - 1].x);
+    const endISO = selectedDate
+      ? toISODateOnly(selectedDate)
+      : toISODateOnly(allData[allData.length - 1].x);
 
     const k = unit.toLowerCase();
-    let start;
+    let startISO;
 
     if (k === "all") {
-      start = new Date(allData[0].x);
+      startISO = toISODateOnly(allData[0].x);
     } else if (k.endsWith("y")) {
-      const y = parseInt(k.replace("y", ""), 10);
-      start = new Date(end);
-      start.setFullYear(end.getFullYear() - y);
+      const y = parseInt(k.replace("y", ""), 10) || 1;
+      const endDate = new Date(endISO);
+      endDate.setFullYear(endDate.getFullYear() - y);
+      startISO = toISODateOnly(endDate);
     } else {
       const d = DAYS[k] ?? 30;
-      start = new Date(end);
-      start.setDate(end.getDate() - d);
+      const endDate = new Date(endISO);
+      endDate.setDate(endDate.getDate() - d);
+      startISO = toISODateOnly(endDate);
     }
 
     return allData.filter((r) => {
-      const dx = new Date(r.x);
-      return dx >= start && dx <= end;
+      const ds = toISODateOnly(r.x);
+      return ds >= startISO && ds <= endISO;
     });
   }, [allData, unit, isPred, data, selectedDate]);
 
@@ -199,9 +218,7 @@ export default function MetricCard({
                     className={`seg-btn ${
                       active ? "is-active" : ""
                     }`}
-                    onClick={() =>
-                      setUnit(key.toLowerCase())
-                    }
+                    onClick={() => setUnit(key.toLowerCase())}
                   >
                     {key.toUpperCase()}
                   </button>

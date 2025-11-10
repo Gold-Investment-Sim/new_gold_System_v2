@@ -1,23 +1,45 @@
 // src/components/MetricMini.jsx
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
 import "./MetricMini.css";
 import InfoTooltip from "./InfoTooltip";
 
-const fmt = (dObj) => {
-    const d = new Date(dObj);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const D = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${D}`;
+const toISO = (d) => {
+  const x = new Date(d);
+  x.setHours(12, 0, 0, 0); // API 파라미터용
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(
+    x.getDate()
+  ).padStart(2, "0")}`;
 };
-export default function MetricMini({ title, metric, selectedDate, onClick, onExpand }) {
+
+// 날짜만 비교용: 입력이 Date든 문자열이든 YYYY-MM-DD로 통일
+const toISODateOnly = (v) => {
+  if (!v) return "";
+  if (typeof v === "string") return v.slice(0, 10);
+  return toISO(v);
+};
+
+export default function MetricMini({
+  title,
+  metric,
+  selectedDate,
+  onClick,
+  onExpand,
+}) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fire = useMemo(() => onClick || onExpand, [onClick, onExpand]);
   const payload = useMemo(() => ({ metric, title }), [metric, title]);
+
   const normMetric = useMemo(
     () => (metric === "gold_close" ? "krw_g_close" : metric),
     [metric]
@@ -38,43 +60,55 @@ export default function MetricMini({ title, metric, selectedDate, onClick, onExp
     setLoading(true);
     setRows([]);
 
-    const end = new Date(selectedDate);
+    const endDate = new Date(selectedDate);
+    const endISO = toISODateOnly(endDate);
 
+    // 3년 치
     const periodDays = 1095;
-    const start = new Date(end);
-    start.setDate(start.getDate() - periodDays);
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - periodDays);
+    const startISO = toISODateOnly(startDate);
 
     const url = isPred ? "/api/lstm/series-all" : "/api/metrics/series";
     const params = isPred
-      // LSTM: to 기준 전체 받아온 뒤, 아래에서 3년 구간만 필터
-      ? { to: fmt(end) }
-      // 일반 지표: 3년(from) ~ 선택일(to) 범위 요청
-      : { metric: normMetric, from: fmt(start), to:fmt(end) };
+      ? { to: toISO(endDate) } // 전체 예측 받아서 아래에서 3년만 자름
+      : {
+          metric: normMetric,
+          from: toISO(startDate),
+          to: toISO(endDate),
+        };
 
     const ctrl = new AbortController();
 
     axios
-      .get(url, { withCredentials: true, params, signal: ctrl.signal })
+      .get(url, {
+        withCredentials: true,
+        params,
+        signal: ctrl.signal,
+      })
       .then(({ data }) => {
         const arr = Array.isArray(data) ? data : [];
 
         let sorted = arr
           .filter((v) => v?.date && v?.value != null)
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .sort(
+            (a, b) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime()
+          )
           .map((v, i) => ({
-            x: v.date ?? i,
+            x: v.date ?? i, // 문자열 날짜 유지
             y: Number(v.value),
           }));
 
         if (isPred) {
-          const startTime = start.getTime();
-          const endTime = end.getTime();
+          // 예측은 series-all 결과 중 3년 구간만 문자열 비교로 필터
           sorted = sorted.filter((p) => {
-            const t = new Date(p.x).getTime();
-            return t >= startTime && t <= endTime;
+            const d = toISODateOnly(p.x);
+            return d >= startISO && d <= endISO;
           });
         }
 
+        // 포인트 수 축소 (최대 120개)
         const MAX_POINTS = 120;
         const step = Math.max(1, Math.ceil(sorted.length / MAX_POINTS));
         const reduced = sorted.filter((_, i) => i % step === 0);
@@ -114,14 +148,24 @@ export default function MetricMini({ title, metric, selectedDate, onClick, onExp
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={80}>
-            <LineChart data={rows} margin={{ top: 6, right: 16, bottom: 2, left: 8 }}>
+            <LineChart
+              data={rows}
+              margin={{ top: 6, right: 16, bottom: 2, left: 8 }}
+            >
               <XAxis dataKey="x" hide />
               <YAxis hide />
               <Tooltip
                 wrapperStyle={{ zIndex: 1000 }}
-                contentStyle={{ fontSize: "12px", padding: "6px 8px", lineHeight: "1.4em" }}
+                contentStyle={{
+                  fontSize: "12px",
+                  padding: "6px 8px",
+                  lineHeight: "1.4em",
+                }}
                 labelFormatter={(l) => `날짜: ${l}`}
-                formatter={(v) => [`${Number(v).toLocaleString()} ${unit}`, title]}
+                formatter={(v) => [
+                  `${Number(v).toLocaleString()} ${unit}`,
+                  title,
+                ]}
               />
               <Line type="monotone" dataKey="y" dot={false} />
             </LineChart>
