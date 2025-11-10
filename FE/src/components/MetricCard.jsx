@@ -12,15 +12,17 @@ import axios from "axios";
 import InfoTooltip from "./InfoTooltip";
 import "./MetricCard.css";
 
+// YYYY-MM-DD (시간 12:00 고정)로 포맷
 const toISO = (d) => {
   const x = new Date(d);
-  x.setHours(12, 0, 0, 0); // TZ 영향 줄이기 위해 12시 고정
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(
-    x.getDate()
-  ).padStart(2, "0")}`;
+  x.setHours(12, 0, 0, 0);
+  const y = x.getFullYear();
+  const m = String(x.getMonth() + 1).padStart(2, "0");
+  const D = String(x.getDate()).padStart(2, "0");
+  return `${y}-${m}-${D}`;
 };
 
-// 날짜값을 YYYY-MM-DD 문자열로 정규화 (Date/문자 둘 다 허용)
+// Date | string → YYYY-MM-DD (비교용)
 const toISODateOnly = (v) => {
   if (!v) return "";
   if (typeof v === "string") return v.slice(0, 10);
@@ -44,25 +46,27 @@ export default function MetricCard({
   metric,
   selectedDate,
   onClose,
-  defaultUnit = "1y", // 기본 1년
+  defaultUnit = "1y", // 첫 코드 기준 기본 1년
 }) {
+  // metric 정규화
   const normMetric = useMemo(
     () => (metric === "gold_close" ? "krw_g_close" : metric),
     [metric]
   );
   const isPred = normMetric === "pred_close";
 
-  // LSTM이면 항상 1y로 시작, 아니면 props 기본값
+  // LSTM이면 항상 1y부터, 아니면 props 기준
   const [unit, setUnit] = useState(isPred ? "1y" : defaultUnit);
-  const [data, setData] = useState([]);
-  const [allData, setAllData] = useState([]);
+  const [data, setData] = useState([]); // 일반 지표용
+  const [allData, setAllData] = useState([]); // LSTM 전체
   const [loading, setLoading] = useState(true);
 
-  // metric 변경 시 unit 재조정
+  // metric / defaultUnit 변경 시 unit 재설정
   useEffect(() => {
     setUnit(isPred ? "1y" : defaultUnit);
   }, [isPred, defaultUnit]);
 
+  // 단위 라벨
   const ulabel = useMemo(() => {
     if (title.includes("환율")) return "원/USD";
     if (title.includes("금")) return "원/g";
@@ -71,7 +75,7 @@ export default function MetricCard({
     return "";
   }, [title]);
 
-  // ===== LSTM 전체 구간 로드 =====
+  // ===== LSTM: 전체 구간 로드 (/api/lstm/series-all) =====
   useEffect(() => {
     if (!selectedDate || !isPred) return;
 
@@ -96,7 +100,7 @@ export default function MetricCard({
               new Date(a.date).getTime() - new Date(b.date).getTime()
           )
           .map((r, i) => ({
-            x: r.date ?? i, // 문자열 날짜 그대로 사용
+            x: r.date ?? i, // 날짜 문자열 유지
             y: Number(r.value),
           }));
         setAllData(sorted);
@@ -107,7 +111,7 @@ export default function MetricCard({
     return () => ctrl.abort();
   }, [selectedDate, isPred]);
 
-  // ===== 일반 지표: 선택일 기준 범위 로드 =====
+  // ===== 일반 지표: unit 기반 범위 로드 (/api/metrics/series) =====
   useEffect(() => {
     if (!selectedDate || isPred) return;
 
@@ -119,9 +123,10 @@ export default function MetricCard({
     const k = unit.toLowerCase();
 
     if (k === "all") {
+      // 최대 10년 조회 (필요 시 조정)
       start.setFullYear(end.getFullYear() - 10);
     } else if (k.endsWith("y")) {
-      const y = parseInt(k.replace("y", ""), 10);
+      const y = parseInt(k.replace("y", ""), 10) || 1;
       start.setFullYear(end.getFullYear() - y);
     } else {
       const d = DAYS[k] ?? 30;
@@ -135,8 +140,8 @@ export default function MetricCard({
         withCredentials: true,
         params: {
           metric: normMetric,
-          from: fmt(start),
-          to: fmt(end),
+          from: toISO(start),
+          to: toISO(end),
         },
         signal: ctrl.signal,
       })
@@ -160,7 +165,7 @@ export default function MetricCard({
     return () => ctrl.abort();
   }, [normMetric, selectedDate, unit, isPred]);
 
-  // ===== LSTM: unit 기준 슬라이스 (문자열 날짜 비교로 off-by-one 방지) =====
+  // ===== LSTM: unit에 따라 selectedDate 기준 슬라이스 =====
   const sliced = useMemo(() => {
     if (!isPred) return data;
     if (!allData.length) return [];
@@ -218,7 +223,9 @@ export default function MetricCard({
                     className={`seg-btn ${
                       active ? "is-active" : ""
                     }`}
-                    onClick={() => setUnit(key.toLowerCase())}
+                    onClick={() =>
+                      setUnit(key.toLowerCase())
+                    }
                   >
                     {key.toUpperCase()}
                   </button>
