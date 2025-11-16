@@ -1,24 +1,156 @@
-/* src/pages/OnBoarding/OnBoarding.css */
+/* ===================================== */
+/* 🟡 전체 페이지 레이아웃 */
+/* ===================================== */
+.onboarding-container {
+  width: 100%;
+  padding-top: 100px; /* 네비와 intro 사이 기본 여백 */
+  padding-bottom: 140px;
+  box-sizing: border-box;
+}
 
-.onboarding {
+
+/* ===================================== */
+/* 🟡 스크롤 등장 애니메이션 */
+/* ===================================== */
+.fade-section {
+  opacity: 0;
+  transform: translateY(80px);
+  transition: all 0.9s ease-out;
+  width: 100%;
+  margin: 120px auto;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.fade-section.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ===================================== */
+/* 🔥 온보딩 최상단 INTRO (히어로 섹션) */
+/* ===================================== */
+.ob-intro-text {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  height: 100vh; /* 화면 전체 중앙 배치 */
   text-align: center;
-  background-color: #ffffff;
+
+  margin-top: 80px; /* 네비와 제목 사이 여백 크게 */
+  gap: 28px; /* 제목 ↔ 본문 간 여백 */
+
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.onboarding-title {
-  font-size: 2rem;
+.ob-intro-text h1 {
+  font-size: 42px;
+  font-weight: 800;
+  margin: 0;
+  color: #111;
+  letter-spacing: -0.5px;
+}
+
+.ob-intro-text p {
+  font-size: 18px;
+  color: #444;
+  line-height: 1.85; /* 가독성 높임 */
+  margin: 0;
+  max-width: 760px;
+  white-space: pre-line; /* 문단 줄바꿈 지원 */
+}
+
+
+/* ===================================== */
+/* 🟡 중앙 텍스트 (공통) */
+/* ===================================== */
+.ob-title-wrap,
+.ob-center-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.ob-center-text h1 {
+  font-size: 34px;
   font-weight: 700;
-  color: #212121;
-  margin-bottom: 16px;
+  margin: 0;
 }
 
-.onboarding-subtitle {
-  font-size: 1.2rem;
-  font-weight: 400;
-  color: #666666;
+.ob-center-text p {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+
+/* ===================================== */
+/* 🟡 설명 텍스트 */
+/* ===================================== */
+.ob-desc {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.6;
+}
+
+
+/* ===================================== */
+/* 🟡 이미지 스타일 */
+/* ===================================== */
+.ob-img-box img {
+  width: 480px;
+  max-width: 85%;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* date.png는 그림자 제거 */
+.no-shadow {
+  box-shadow: none !important;
+}
+
+
+/* ===================================== */
+/* 🔥 마지막 CTA 영역 */
+/* ===================================== */
+.ob-final {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 40px;
+  margin-top: 60px;
+}
+
+.ob-final h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+
+/* CTA 버튼 */
+.ob-start-btn {
+  background: #1e80ff;
+  color: white;
+  border: none;
+  padding: 15px 32px;
+  font-size: 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 6px 16px rgba(0, 120, 255, 0.25);
+}
+
+.ob-start-btn:hover {
+  background: #006ce8;
+  transform: translateY(-3px);
 }

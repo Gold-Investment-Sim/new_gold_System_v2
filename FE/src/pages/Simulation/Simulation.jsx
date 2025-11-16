@@ -38,10 +38,13 @@ function Simulation() {
       <div className="simulation">
         <h1 className="simulation-title">투자 시뮬레이션 시작하기</h1>
         <p className="simulation-subtitle">
-          날짜를 선택하고, 그날의 뉴스와 금 시세를 확인하세요.
+        본 기능은 실제 투자가 아닌 교육·연습용 시뮬레이션입니다.
+선택한 날짜의 뉴스와 데이터를 바탕으로
+금 시세 변동 원리를 이해하고 투자 감각을 익히기 위한 목적으로 제공됩니다.
         </p>
         <p className="simulation-subtitle">
-          실제처럼 매수·매도를 체험하며 나만의 투자 전략을 만들어보세요.
+        실제 금융 투자 시에는 개인의 판단이 필요하며
+본 시뮬레이션은 투자 결과를 보장하지 않습니다.
         </p>
         <button className="simulation-btn" onClick={handleStart}>
           시뮬레이션 시작하기
